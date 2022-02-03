@@ -1,0 +1,13 @@
+make --dry-run --keep-going --print-directory
+make: Entering directory `/Users/yeawonbong/goinfre/cub3d'
+gcc -Wall -Wextra -Werror -c cub3d.c map.c -I ./get_next_line
+ 
+gcc -Wall -Wextra -Werror -c cub3d.c map.c -I ./get_next_line
+make all -C ./get_next_line
+make all -C ./minilibx_mms_20200219
+cp ./get_next_line/get_next_line.a so_long.a
+cp ./minilibx_mms_20200219/libmlx.dylib .
+ar rcs so_long.a cub3d.o map.o
+gcc -Wall -Wextra -Werror so_long.a libmlx.dylib -o so_long
+make: Leaving directory `/Users/yeawonbong/goinfre/cub3d'
+ 

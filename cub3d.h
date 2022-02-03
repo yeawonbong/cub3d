@@ -5,6 +5,7 @@
 # include <stdlib.h>
 # include "./minilibx_mms_20200219/mlx.h"
 # include "./get_next_line/get_next_line.h"
+# include "./libft/libft.h"
 
 # define KEYPRESS 2
 # define REDCROSS 17
@@ -22,6 +23,7 @@ typedef struct s_mapinfo
 	char	*west;
 	char	*east;
 	char	*floor;
+	char	*ceiling;
 }			t_mapinfo;
 
 typedef struct	s_check
@@ -57,7 +59,7 @@ typedef struct	s_mlx
 	void		*window;
 	int			x;
 	int			y;
-	t_map		*map;
+	t_map		map;
 	t_check		*check;
 	int			loop;
 	int			change;
