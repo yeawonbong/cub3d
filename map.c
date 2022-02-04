@@ -2,34 +2,34 @@
 
 void	get_map_info(t_mlx *mlx, int fd)
 {
-	char	*line;
-	int	i;
+// 	char	*line;
+// 	int	i;
 
-	i = 0;
-printf ("res: %d\n", get_next_line(fd, &line));
-	while (get_next_line(fd, &line))
-	{
-			printf("here\n");
-		if (line)
-		{
-			if (!ft_strncmp(line, "NO", 2))
-				mlx->map.info.north = ft_strdup(line + 3);
-			else if (!ft_strncmp(line, "SO", 2))
-				mlx->map.info.south = ft_strdup(line + 3);
-			else if (!ft_strncmp(line, "WE", 2))
-				mlx->map.info.west = ft_strdup(line + 3);
-			else if (!ft_strncmp(line, "EA", 2))
-				mlx->map.info.east = ft_strdup(line + 3);
-			else if (!ft_strncmp(line, "F", 1))
-				mlx->map.info.floor = ft_strdup(line + 2);
-			else if (!ft_strncmp(line, "C", 1))
-				mlx->map.info.ceiling = ft_strdup(line + 2);
-			else
-				mlx->map.maparr[i] = ft_strdup(line);
-			free(line);
-			line = NULL;
-		}
-	}
+// 	i = 0;
+// printf ("res: %d\n", get_next_line(fd, &line));
+// 	while (get_next_line(fd, &line))
+// 	{
+// 			printf("here\n");
+// 		if (line)
+// 		{
+// 			if (!ft_strncmp(line, "NO", 2))
+// 				mlx->map.info.north = ft_strdup(line + 3);
+// 			else if (!ft_strncmp(line, "SO", 2))
+// 				mlx->map.info.south = ft_strdup(line + 3);
+// 			else if (!ft_strncmp(line, "WE", 2))
+// 				mlx->map.info.west = ft_strdup(line + 3);
+// 			else if (!ft_strncmp(line, "EA", 2))
+// 				mlx->map.info.east = ft_strdup(line + 3);
+// 			else if (!ft_strncmp(line, "F", 1))
+// 				mlx->map.info.floor = ft_strdup(line + 2);
+// 			else if (!ft_strncmp(line, "C", 1))
+// 				mlx->map.info.ceiling = ft_strdup(line + 2);
+// 			else
+// 				mlx->map.maparr[i] = ft_strdup(line);
+// 			free(line);
+// 			line = NULL;
+// 		}
+// 	}
 }
 
 // void	map_size(t_map *map, char *filename)
@@ -59,9 +59,9 @@ printf ("res: %d\n", get_next_line(fd, &line));
 void	get_map(t_mlx *mlx, char *filename)
 {
 	int		fd;
-	int		i;
+	// int		i;
 
-	
+printf("filename: %s\n", filename);
 	mlx->map.maparr = malloc((int)sizeof(char*) * 30);
 	if ((fd = open(filename, O_RDONLY)) < 0)
 	{
@@ -69,7 +69,36 @@ void	get_map(t_mlx *mlx, char *filename)
 		exit(EXIT_FAILURE);
 	}
 	printf("fd is %d\n", fd);
-	get_map_info(mlx, fd);
+	// get_map_info(mlx, fd);
+	char	*line;
+	int	i;
+
+	i = 0;
+printf ("res: %d\n", get_next_line(fd, &line));
+printf ("sres: %s\n", line);
+	while (0 < get_next_line(fd, &line))
+	{
+			printf("here\n");
+		if (line)
+		{
+			if (!ft_strncmp(line, "NO", 2))
+				mlx->map.info.north = ft_strdup(line + 3);
+			else if (!ft_strncmp(line, "SO", 2))
+				mlx->map.info.south = ft_strdup(line + 3);
+			else if (!ft_strncmp(line, "WE", 2))
+				mlx->map.info.west = ft_strdup(line + 3);
+			else if (!ft_strncmp(line, "EA", 2))
+				mlx->map.info.east = ft_strdup(line + 3);
+			else if (!ft_strncmp(line, "F", 1))
+				mlx->map.info.floor = ft_strdup(line + 2);
+			else if (!ft_strncmp(line, "C", 1))
+				mlx->map.info.ceiling = ft_strdup(line + 2);
+			else
+				mlx->map.maparr[i] = ft_strdup(line);
+			free(line);
+			line = NULL;
+		}
+	}
 	for (int i=0; mlx->map.maparr[i]; i++)
 	{
 		printf("%s, %d\n", mlx->map.maparr[i], i);
@@ -99,5 +128,6 @@ int main(int argc, char *argv[])
 	mlx = malloc(sizeof(t_mlx));
 	ft_memset(mlx, 0, sizeof(t_mlx));
 	get_map(mlx, argv[1]);
+	
 	return 0;
 }

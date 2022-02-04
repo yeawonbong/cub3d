@@ -645,9 +645,9 @@ int		main(int agc, char *agv[])
 	if (agc == 2)
 	{
 		mappasing(&data, agv);
-		// int i = -1;
-		// while (data.map[++i])
-		// 	printf("%s\n", data.map[i]);
+		int i = -1;
+		while (data.map[++i])
+			printf("%s\n", data.map[i]);
 		data.win = mlx_new_window(data.mlx, data.m_width * 100, data.m_height * 100, "minsikim_shooting");
 	}
 	else

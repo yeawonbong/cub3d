@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ybong <ybong@student.42.fr>                +#+  +:+       +#+        */
+/*   By: ybong <ybong@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/20 15:28:57 by ybong             #+#    #+#             */
-/*   Updated: 2021/06/23 17:41:31 by ybong            ###   ########.fr       */
+/*   Updated: 2022/02/04 15:36:29 by ybong            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,17 +67,21 @@ int		get_next_line(int fd, char **line)
 	readsize = 0;
 	while ((readsize = ft_read(readsize, fd, backup)) >= 0)
 	{
-		if ((enter_idx = ft_find_enter(backup[fd])) >= 0)
+		if ((enter_idx = ft_find_enter(backup[fd])) >= 0){
 			return ((ft_split_str(fd, backup, line, enter_idx)));
+		}
 		if (enter_idx == -1 && (readsize < BUFFER_SIZE))
 		{
 			*line = backup[fd];
 			backup[fd] = 0;
+		printf("return: %s\n", *line);
 			return (0);
 		}
 		if (readsize == 0 && backup[fd] == 0)
 		{
 			*line = ft_strdup("");
+		printf("return: %s\n", *line);
+		
 			return (0);
 		}
 	}
