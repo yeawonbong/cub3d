@@ -2,132 +2,124 @@
 
 void	get_map_info(t_mlx *mlx, int fd)
 {
-// 	char	*line;
-// 	int	i;
+	char	*line;
+	int		i;
+	int		res;
+	int		ismap;
 
-// 	i = 0;
-// printf ("res: %d\n", get_next_line(fd, &line));
-// 	while (get_next_line(fd, &line))
-// 	{
-// 			printf("here\n");
-// 		if (line)
-// 		{
-// 			if (!ft_strncmp(line, "NO", 2))
-// 				mlx->map.info.north = ft_strdup(line + 3);
-// 			else if (!ft_strncmp(line, "SO", 2))
-// 				mlx->map.info.south = ft_strdup(line + 3);
-// 			else if (!ft_strncmp(line, "WE", 2))
-// 				mlx->map.info.west = ft_strdup(line + 3);
-// 			else if (!ft_strncmp(line, "EA", 2))
-// 				mlx->map.info.east = ft_strdup(line + 3);
-// 			else if (!ft_strncmp(line, "F", 1))
-// 				mlx->map.info.floor = ft_strdup(line + 2);
-// 			else if (!ft_strncmp(line, "C", 1))
-// 				mlx->map.info.ceiling = ft_strdup(line + 2);
-// 			else
-// 				mlx->map.maparr[i] = ft_strdup(line);
-// 			free(line);
-// 			line = NULL;
-// 		}
-// 	}
+	ismap = 0;
+	i = 0;
+	while (0 <= (res = get_next_line(fd, &line)))
+	{
+		if (!ft_strncmp(line, "NO", 2) && !ismap)
+			mlx->map.info.north = ft_strtrim(line + 2, " ");
+		else if (!ft_strncmp(line, "SO", 2) && !ismap)
+			mlx->map.info.south = ft_strtrim(line + 2, " ");
+		else if (!ft_strncmp(line, "WE", 2) && !ismap)
+			mlx->map.info.west = ft_strtrim(line + 2, " ");
+		else if (!ft_strncmp(line, "EA", 2) && !ismap)
+			mlx->map.info.east = ft_strtrim(line + 2, " ");
+		else if (!ft_strncmp(line, "F", 1) && !ismap)
+			mlx->map.info.floor = ft_strtrim(line + 1, " ");
+		else if (!ft_strncmp(line, "C", 1) && !ismap)
+			mlx->map.info.ceiling = ft_strtrim(line + 1, " ");
+		else if (*line && ft_strchr("1 ", *line))
+		{
+			ismap = 1;
+			mlx->map.maparr[i++] = ft_strdup(line);
+		}
+		else if (ismap == 1)
+		{
+			perror("Error\nInvalid map");
+			exit(EXIT_FAILURE);
+		}
+		free(line);
+		line = NULL;
+		if (res == 0)
+			break;
+	}
+	mlx->map.height = i;
 }
 
-// void	map_size(t_map *map, char *filename)
-// {
-// 	char	*line;
-// 	int		fd;
-// 	int		gnl;
+int		isvalid_map(t_map *map)
+{
+	char	**maparr;
+	int		i;
+	int		j;
 
-// 	map->height = 1;
-// 	map->width = 0;
-// 	fd = open(filename, O_RDONLY);
-// 	gnl = 1;
-// 	while (gnl > 0)
-// 	{
-// 		gnl = get_next_line(fd, &line);
-// 		if (gnl <= 0)
-// 			break ;
-// 		if (map->width < ft_strlen(line))
-// 			map->width = ft_strlen(line);
-// 		map->height++;
-// 		free(line);
-// 	}
-// 	free(line);
-// 	close(fd);
-// }
+	maparr = map->maparr;
+	i = 0;
+	while (maparr[i])
+	{
+		j = 0;
+		while (maparr[i][j])
+		{
+			if (ft_strchr("NSEW", maparr[i][j]) && !map->curdir)
+			{
+				map->curx = j;
+				map->cury = i;
+				map->curdir = maparr[i][j];
+			}
+			else if (!ft_strchr("01 ", maparr[i][j]))
+				return (-1);
+			if ((i == 0 || j == 0 \
+			|| i == (map->height - 1) || j == (ft_strlen(maparr[i]) - 1)) \
+			&& !ft_strchr("1 ", maparr[i][j]))
+				return (-1);
+			if (maparr[i][j] == ' ')
+			{
+				if (0 < i && !ft_strchr("1 ", maparr[i - 1][j]))
+					return (-1);
+				if (0 < j && !ft_strchr("1 ", maparr[i][j - 1]))
+					return (-1);				
+				if (i < map->height - 1 && !ft_strchr("1 ", maparr[i + 1][j]))
+					return (-1);
+				if (j < ft_strlen(maparr[i]) - 1 && !ft_strchr("1 ", maparr[i][j + 1]))
+					return (-1);
+			}	
+			j++;
+		}
+		i++;
+	}
+	return (0);	
+}
 
 void	get_map(t_mlx *mlx, char *filename)
 {
 	int		fd;
-	// int		i;
-
-printf("filename: %s\n", filename);
-	mlx->map.maparr = malloc((int)sizeof(char*) * 30);
+	int		i;
+	char	*line;
+	
+	mlx->map.maparr = malloc((int)sizeof(char*) * 50);
 	if ((fd = open(filename, O_RDONLY)) < 0)
 	{
 		perror("Error\nThe map doesn't exist");
 		exit(EXIT_FAILURE);
 	}
-	printf("fd is %d\n", fd);
-	// get_map_info(mlx, fd);
-	char	*line;
-	int	i;
-
-	i = 0;
-printf ("res: %d\n", get_next_line(fd, &line));
-printf ("sres: %s\n", line);
-	while (0 < get_next_line(fd, &line))
+	get_map_info(mlx, fd);
+	if (isvalid_map(&mlx->map) < 0)
 	{
-			printf("here\n");
-		if (line)
-		{
-			if (!ft_strncmp(line, "NO", 2))
-				mlx->map.info.north = ft_strdup(line + 3);
-			else if (!ft_strncmp(line, "SO", 2))
-				mlx->map.info.south = ft_strdup(line + 3);
-			else if (!ft_strncmp(line, "WE", 2))
-				mlx->map.info.west = ft_strdup(line + 3);
-			else if (!ft_strncmp(line, "EA", 2))
-				mlx->map.info.east = ft_strdup(line + 3);
-			else if (!ft_strncmp(line, "F", 1))
-				mlx->map.info.floor = ft_strdup(line + 2);
-			else if (!ft_strncmp(line, "C", 1))
-				mlx->map.info.ceiling = ft_strdup(line + 2);
-			else
-				mlx->map.maparr[i] = ft_strdup(line);
-			free(line);
-			line = NULL;
-		}
+		perror("Error\nInvalid map");
+		exit(EXIT_FAILURE);
 	}
-	for (int i=0; mlx->map.maparr[i]; i++)
-	{
-		printf("%s, %d\n", mlx->map.maparr[i], i);
-	}
-
-	// map_size(mlx->map = malloc(sizeof(t_map)), filename);
-	// mlx->map->maparr = malloc((int)sizeof(char*) * mlx->map->height);
-	// while ((get_next_line(fd, &line)) > 0)
 	// {
-	// 	mlx->map->maparr[i++] = ft_strdup(line);
-	// 	free(line);
-	// 	if (ft_strlen(mlx->map->maparr[i - 1]) != mlx->map->width)
+	// 	printf("NO %s\nSO %s\nWE %s\nEA %s\nF %s\nC %s\n", mlx->map.info.north, mlx->map.info.south, mlx->map.info.west, mlx->map.info.east, mlx->map.info.floor, mlx->map.info.ceiling);
+	// 	for (int i=0; mlx->map.maparr[i]; i++) //출력 확인
 	// 	{
-	// 		perror("Error\nThe map is not rectangular");
-	// 		exit(EXIT_FAILURE);
+	// 		printf("%s, %d\n", mlx->map.maparr[i], i);
 	// 	}
+	// 	printf("current player position: x_%d, y_%d, dir_%c", mlx->map.curx, mlx->map.cury, mlx->map.curdir);
 	// }
-	// mlx->map->maparr[i] = ft_strdup(line);
-	// free(line);
+
 	close(fd);
 }
 
 int main(int argc, char *argv[])
 {
-	printf("hi\n");
+	argc =0;
 	t_mlx *mlx;
 	mlx = malloc(sizeof(t_mlx));
 	ft_memset(mlx, 0, sizeof(t_mlx));
 	get_map(mlx, argv[1]);
-	
 	return 0;
 }

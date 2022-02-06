@@ -6,11 +6,40 @@
 /*   By: ybong <ybong@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/20 15:28:57 by ybong             #+#    #+#             */
-/*   Updated: 2022/02/04 15:36:29 by ybong            ###   ########.fr       */
+/*   Updated: 2022/02/04 16:37:30 by ybong            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+
+char	*gnl_strjoin(char *s1, char *s2)
+{
+	char	*dst;
+	int		i;
+	int		j;
+
+	if (!s1 && !s2)
+		return (0);
+	if (!s1)
+		s1 = ft_strdup("");
+	if (!s2)
+		s2 = ft_strdup("");
+	if (!(dst = (char*)malloc((ft_strlen(s1) + ft_strlen(s2) + 1))))
+		return (0);
+	i = -1;
+	while (s1[++i])
+		dst[i] = s1[i];
+	free(s1);
+	j = 0;
+	while (s2[j])
+	{
+		dst[i] = s2[j];
+		i++;
+		j++;
+	}
+	dst[i] = '\0';
+	return (dst);
+}
 
 int		ft_read(int readsize, int fd, char **backup)
 {
@@ -21,7 +50,7 @@ int		ft_read(int readsize, int fd, char **backup)
 		return (-1);
 	if (buf)
 		buf[readsize] = '\0';
-	backup[fd] = ft_strjoin(backup[fd], buf);
+	backup[fd] = gnl_strjoin(backup[fd], buf);
 	free(buf);
 	return (readsize);
 }
@@ -67,23 +96,31 @@ int		get_next_line(int fd, char **line)
 	readsize = 0;
 	while ((readsize = ft_read(readsize, fd, backup)) >= 0)
 	{
-		if ((enter_idx = ft_find_enter(backup[fd])) >= 0){
+		if ((enter_idx = ft_find_enter(backup[fd])) >= 0)
 			return ((ft_split_str(fd, backup, line, enter_idx)));
-		}
 		if (enter_idx == -1 && (readsize < BUFFER_SIZE))
 		{
 			*line = backup[fd];
 			backup[fd] = 0;
-		printf("return: %s\n", *line);
 			return (0);
 		}
 		if (readsize == 0 && backup[fd] == 0)
 		{
 			*line = ft_strdup("");
-		printf("return: %s\n", *line);
-		
 			return (0);
 		}
 	}
 	return (-1);
+}
+
+int main(int argc, char *argv[])
+{
+	int		fd;
+	char	*line;
+
+
+	fd = open(argv[1], O_RDONLY);
+	while (get_next_line(fd, &line) > 0)
+		printf("out = %s\n", line);
+	return 0;
 }

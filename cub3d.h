@@ -24,6 +24,8 @@ typedef struct s_mapinfo
 	char	*east;
 	char	*floor;
 	char	*ceiling;
+
+
 }			t_mapinfo;
 
 typedef struct	s_check
@@ -41,16 +43,10 @@ typedef struct	s_map
 	int			height;
 
 	t_mapinfo	info;
-
-	void		*wall;
-	void		*floor;
-	void		*collectible;
-	void		*player;
-	void		*exitp;
-	void		*blackhole;
-
-	int			curi;
-	int			curj;
+	
+	int			curx;
+	int			cury;
+	char		curdir;
 }				t_map;
 
 typedef struct	s_mlx

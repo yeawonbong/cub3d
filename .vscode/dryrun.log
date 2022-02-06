@@ -1,7 +1,6 @@
-make --dry-run --keep-going --print-directory
+make --dry-run --always-make --keep-going --print-directory
 make: Entering directory `/Users/yeawonbong/goinfre/cub3d'
 gcc -Wall -Wextra -Werror -c cub3d.c map.c -I ./get_next_line
- 
 gcc -Wall -Wextra -Werror -c cub3d.c map.c -I ./get_next_line
 make all -C ./get_next_line
 make all -C ./minilibx_mms_20200219
