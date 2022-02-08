@@ -1,120 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "mlx.h"
-#include <fcntl.h>
-#include "get_next_line.h"
-#include "mlx.h"
-#include <math.h>
-#include <time.h>
-#include <pthread.h>
-
-# define UP 126
-# define DOWN 125
-# define LEFT 123
-# define RIGHT 124
-
-
-
-
-// gcc -lmlx -framework OpenGL -framework Appkit testmain.c
-// gcc -lmlx -framework OpenGL -framework Appkit testmain.c -L. -lgnl
-
-//arch -x86_64 gcc -lmlx -framework OpenGL -framework Appkit testmain.c -L. -lgnl
-
-char	arr[16001][10001]; // until 1600 * 1000
-
-typedef struct	s_item
-{
-	int		x;
-	int		y;
-	int		ga;
-	int		count;
-}				t_item;
-
-typedef struct	s_player
-{
-	float	oldx;
-	float	oldy;
-	float	x; /////////여기
-	float	y;
-	int		up;
-	int		down;
-	int		left;
-	int		right;
-	int		num;
-	int		count;
-	int		color;
-	int		pcolor;
-	char	*charic;
-	int		hack;
-	int		hitted;
-
-	float	HP;
-	int		shoot;
-	int		shooted;
-	int		lose_count;
-	int		frame;
-
-	double	vec_x;
-	double	vec_y;
-	double	theta;
-	float	move_speed;
-}				t_player;
-
-typedef struct s_mapinfo
-{
-	char	*north;
-	char	*south;
-	char	*west;
-	char	*east;
-	char	*floor;
-	char	*ceiling;
-}			t_mapinfo;
-
-typedef struct	s_map
-{
-	char		**maparr;
-	int			height;
-	int			width;
-
-	t_mapinfo	info;
-	
-	int			curx;
-	int			cury;
-	char		curdir;
-}				t_map;
-
-typedef struct	s_data {
-	void	*mlx;
-	void	*win;
-
-	void	*img;
-	char	*addr;
-	int		bits_per_pixel;
-	int		line_length;
-	int		endian;
-	int		width;
-	int		height;
-	unsigned long	frame;
-	int		item;
-	int		now;
-	int		clear;
-	//char	**map
-	t_map	map;
-	// int		m_width;
-	// int		m_height;
-	int		wall_x;
-	int		wall_y;
-	int		short_x;
-
-	t_player	player;
-
-	int		m1;
-	int		m2;
-
-	float	aim;
-	float	rotate_speed;
-}				t_data;
+# include "cub3d.h"
 
 void    my_mlx_pixel_put(t_data *data, int x, int y, int color)
 {
@@ -619,64 +503,64 @@ void	dataset(t_data *data)
 	data->rotate_speed = 0.04;
 }
 
-void	set_map(int fd, char **argv, t_data *data)
-{
-	int		i;
-	char	*line;
-	int		width;
+// void	set_map(int fd, char **argv, t_data *data)
+// {
+// 	int		i;
+// 	char	*line;
+// 	int		width;
 
-	line = 0;
-	data->map.width = 0;
-	get_next_line(fd, &line);
-	while (line[data->map.width] != 0)
-		data->map.width++;
-	i = 1;
-	while (get_next_line(fd, &line) > 0)
-	{
-		width = 0;
-		while (line[width] != 0)
-			width++;
-		if (data->map.width < width)
-			data->map.width = width;
-		i++;
-	}
-	data->map.maparr = (char **)malloc(sizeof(char *) * i + 1);
-	data->map.height = i;
-	fd = open(argv[1], O_RDONLY);
-	i = 0;
-	while (get_next_line(fd, &(data->map.maparr[i])))
-		i++;
-}
+// 	line = 0;
+// 	data->map.width = 0;
+// 	get_next_line(fd, &line);
+// 	while (line[data->map.width] != 0)
+// 		data->map.width++;
+// 	i = 1;
+// 	while (get_next_line(fd, &line) > 0)
+// 	{
+// 		width = 0;
+// 		while (line[width] != 0)
+// 			width++;
+// 		if (data->map.width < width)
+// 			data->map.width = width;
+// 		i++;
+// 	}
+// 	data->map.maparr = (char **)malloc(sizeof(char *) * i + 1);
+// 	data->map.height = i;
+// 	fd = open(argv[1], O_RDONLY);
+// 	i = 0;
+// 	while (get_next_line(fd, &(data->map.maparr[i])))
+// 		i++;
+// }
 
-void	make_map(int fd, char **map)
-{
-	int		i;
-	char	*line;
-	int		width;
+// void	make_map(int fd, char **map)
+// {
+// 	int		i;
+// 	char	*line;
+// 	int		width;
 
-	line = 0;
-	i = 0;
-	while (get_next_line(fd, &line) > 0)
-	{
-		map[i] = line;
-		// if (data->width != width)
-		// 	exit(1);
-		i++;
-	}
-}
+// 	line = 0;
+// 	i = 0;
+// 	while (get_next_line(fd, &line) > 0)
+// 	{
+// 		map[i] = line;
+// 		// if (data->width != width)
+// 		// 	exit(1);
+// 		i++;
+// 	}
+// }
 
-void	mappasing(t_data *data, char **agv)
-{
-	int		fd;
+// void	mappasing(t_data *data, char **agv)
+// {
+// 	int		fd;
 
-	fd = open(agv[1], O_RDONLY);
-	set_map(fd, agv, data);
-	make_map(fd, data->map.maparr);
-	data->player.x = data->map.width * 50;
-	data->player.y = data->map.height * 50;
-	data->width = data->map.width * 100;
-	data->height = data->map.height * 100;
-}
+// 	fd = open(agv[1], O_RDONLY);
+// 	set_map(fd, agv, data);
+// 	make_map(fd, data->map.maparr);
+// 	data->player.x = data->map.width * 50;
+// 	data->player.y = data->map.height * 50;
+// 	data->width = data->map.width * 100;
+// 	data->height = data->map.height * 100;
+// }
 
 int		main(int agc, char *agv[])
 {
@@ -687,7 +571,8 @@ int		main(int agc, char *agv[])
 	data.mlx = mlx_init();
 	if (agc == 2)
 	{
-		mappasing(&data, agv);
+		get_map(&data, agv[1]);
+		// mappasing(&data, agv);
 		// int i = -1;
 		// while (data.map[++i])
 		// 	printf("%s\n", data.map[i]);
@@ -703,5 +588,5 @@ int		main(int agc, char *agv[])
 	mlx_do_key_autorepeaton(data.mlx);
 	mlx_hook(data.win, 3, 1L<<1, release, &data); // keyboard release
 	mlx_loop_hook(data.mlx, loop_ft, &data);
-	mlx_loop(data.mlx);
+	mlx_loop(data.mlx); ///SEG
 }

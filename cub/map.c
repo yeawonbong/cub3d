@@ -1,6 +1,6 @@
 #include "./cub3d.h"
 
-void	get_map_info(t_mlx *mlx, int fd)
+void	get_map_info(t_data *data, int fd)
 {
 	char	*line;
 	int		i;
@@ -12,21 +12,21 @@ void	get_map_info(t_mlx *mlx, int fd)
 	while (0 <= (res = get_next_line(fd, &line)))
 	{
 		if (!ft_strncmp(line, "NO", 2) && !ismap)
-			mlx->map.info.north = ft_strtrim(line + 2, " ");
+			data->map.info.north = ft_strtrim(line + 2, " ");
 		else if (!ft_strncmp(line, "SO", 2) && !ismap)
-			mlx->map.info.south = ft_strtrim(line + 2, " ");
+			data->map.info.south = ft_strtrim(line + 2, " ");
 		else if (!ft_strncmp(line, "WE", 2) && !ismap)
-			mlx->map.info.west = ft_strtrim(line + 2, " ");
+			data->map.info.west = ft_strtrim(line + 2, " ");
 		else if (!ft_strncmp(line, "EA", 2) && !ismap)
-			mlx->map.info.east = ft_strtrim(line + 2, " ");
+			data->map.info.east = ft_strtrim(line + 2, " ");
 		else if (!ft_strncmp(line, "F", 1) && !ismap)
-			mlx->map.info.floor = ft_strtrim(line + 1, " ");
+			data->map.info.floor = ft_strtrim(line + 1, " ");
 		else if (!ft_strncmp(line, "C", 1) && !ismap)
-			mlx->map.info.ceiling = ft_strtrim(line + 1, " ");
+			data->map.info.ceiling = ft_strtrim(line + 1, " ");
 		else if (*line && ft_strchr("1 ", *line))
 		{
 			ismap = 1;
-			mlx->map.maparr[i++] = ft_strdup(line);
+			data->map.maparr[i++] = ft_strdup(line);
 		}
 		else if (ismap == 1)
 		{
@@ -34,14 +34,14 @@ void	get_map_info(t_mlx *mlx, int fd)
 			exit(EXIT_FAILURE);
 		}
 		free(line);
-		line = NULL;
+		line = 0;
 		if (res == 0)
 			break;
 	}
-	mlx->map.height = i;
+	data->map.height = i;
 }
 
-int		isvalid_map(t_map *map)
+int		isvalid_map(t_map *map, t_player *player)
 {
 	char	**maparr;
 	int		i;
@@ -54,11 +54,11 @@ int		isvalid_map(t_map *map)
 		j = 0;
 		while (maparr[i][j])
 		{
-			if (ft_strchr("NSEW", maparr[i][j]) && !map->curdir)
+			if (ft_strchr("NSEW", maparr[i][j]) && !player->dir)
 			{
-				map->curx = j;
-				map->cury = i;
-				map->curdir = maparr[i][j];
+				// player->x = j;
+				// player->y = i;
+				player->dir = maparr[i][j];
 			}
 			else if (!ft_strchr("01 ", maparr[i][j]))
 				return (-1);
@@ -84,7 +84,7 @@ int		isvalid_map(t_map *map)
 	return (0);	
 }
 
-void	get_map(t_mlx *mlx, char *filename)
+void	get_map(t_data *data, char *filename)
 {
 	int		fd;
 	int		i;
@@ -113,19 +113,19 @@ void	get_map(t_mlx *mlx, char *filename)
 		perror("Error\nThe map doesn't exist");
 		exit(EXIT_FAILURE);
 	}	
-	get_map_info(mlx, fd);
-	if (isvalid_map(&mlx->map) < 0)
+	get_map_info(data, fd);
+	if (isvalid_map(&data->map, &data->player) < 0)
 	{
 		perror("Error\nInvalid map");
 		exit(EXIT_FAILURE);
 	}
 	// {
-	// 	printf("NO %s\nSO %s\nWE %s\nEA %s\nF %s\nC %s\n", mlx->map.info.north, mlx->map.info.south, mlx->map.info.west, mlx->map.info.east, mlx->map.info.floor, mlx->map.info.ceiling);
-	// 	for (int i=0; mlx->map.maparr[i]; i++) //출력 확인
+	// 	printf("NO %s\nSO %s\nWE %s\nEA %s\nF %s\nC %s\n", data->map.info.north, data->map.info.south, data->map.info.west, data->map.info.east, data->map.info.floor, data->map.info.ceiling);
+	// 	for (int i=0; data->map.maparr[i]; i++) //출력 확인
 	// 	{
-	// 		printf("%s, %d\n", mlx->map.maparr[i], i);
+	// 		printf("%s, %d\n", data->map.maparr[i], i);
 	// 	}
-	// 	printf("current player position: x_%d, y_%d, dir_%c", mlx->map.curx, mlx->map.cury, mlx->map.curdir);
+	// 	printf("current player position: x_%f, y_%f, dir_%c\n", data->player.x, data->player.y, data->player.dir);
 	// }
 
 	close(fd);

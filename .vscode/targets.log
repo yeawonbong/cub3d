@@ -6,9 +6,8 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # PARTICULAR PURPOSE.
 
 # This program built for i386-apple-darwin11.3.0
- 
 
-# Make data base, printed on Sun Feb  6 11:49:13 2022
+# Make data base, printed on Mon Feb  7 17:03:28 2022
 
 # Variables
 
@@ -17,7 +16,6 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # automatic
 ?F = $(notdir $?)
 # environment
- 
 VSCODE_LOG_NATIVE = false
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
@@ -48,7 +46,7 @@ __CFBundleIdentifier = com.microsoft.VSCode
 # environment
 INFOPATH = /opt/homebrew/share/info:
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/z_/jbhs7xyj5zq5m5l2jmsgx5rh0000gn/T/vscode-ipc-fd7fa7d6-e471-46a9-b179-e06335599c9a.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/z_/jbhs7xyj5zq5m5l2jmsgx5rh0000gn/T/vscode-ipc-084a07da-f9cb-45b7-8724-77a0e18a8328.sock
 # environment
 VSCODE_CWD = /
 # environment
@@ -168,7 +166,7 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 6268
+VSCODE_PID = 54320
 # makefile (from `Makefile', line 10)
 BONUS_OUT = so_long_bonus
 # variable set hash-table stats:
@@ -180,9 +178,9 @@ BONUS_OUT = so_long_bonus
 
 # Directories
 
-# . (device 16777230, inode 7361736): 22 files, no impossibilities.
+# . (device 16777230, inode 7361736): 23 files, no impossibilities.
 
-# 22 files, no impossibilities in 1 directories.
+# 23 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -321,6 +319,7 @@ so_long.a: cub3d.o map.o
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/6=0%
+ 
 #  commands to execute (from `Makefile', line 21):
 	make all -C $(GNL_DIR)
 	make all -C $(MLX_DIR)
@@ -340,10 +339,9 @@ so_long.a: cub3d.o map.o
 
 # # of strings in strcache: 1
 # # of strcache buffers: 1
- 
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Sun Feb  6 11:49:13 2022
+# Finished Make data base on Mon Feb  7 17:03:28 2022
 
  
