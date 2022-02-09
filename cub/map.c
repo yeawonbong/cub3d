@@ -119,14 +119,15 @@ void	get_map(t_data *data, char *filename)
 		perror("Error\nInvalid map");
 		exit(EXIT_FAILURE);
 	}
-	// {
-	// 	printf("NO %s\nSO %s\nWE %s\nEA %s\nF %s\nC %s\n", data->map.info.north, data->map.info.south, data->map.info.west, data->map.info.east, data->map.info.floor, data->map.info.ceiling);
-	// 	for (int i=0; data->map.maparr[i]; i++) //출력 확인
-	// 	{
-	// 		printf("%s, %d\n", data->map.maparr[i], i);
-	// 	}
-	// 	printf("current player position: x_%f, y_%f, dir_%c\n", data->player.x, data->player.y, data->player.dir);
-	// }
+	{
+		for (int i=0; data->map.maparr[i]; i++) //출력 확인
+		{
+			printf("%s, %d\n", data->map.maparr[i], i);
+		}
+		printf("current player position: x_%f, y_%f, dir_%c\n", data->player.x, data->player.y, data->player.dir);
+		printf("map.height: %d, width: %d\n", data->map.height, data->map.width);
+		printf("NO %s\nSO %s\nWE %s\nEA %s\nF %s\nC %s\n", data->map.info.north, data->map.info.south, data->map.info.west, data->map.info.east, data->map.info.floor, data->map.info.ceiling);
+	}
 
 	close(fd);
 }
@@ -134,9 +135,11 @@ void	get_map(t_data *data, char *filename)
 // int main(int argc, char *argv[])
 // {
 // 	argc =0;
-// 	t_mlx *mlx;
-// 	mlx = malloc(sizeof(t_mlx));
-// 	ft_memset(mlx, 0, sizeof(t_mlx));
-// 	get_map(mlx, argv[1]);
+// 	t_data *data;
+// 	data = malloc(sizeof(t_data));
+// 	ft_memset(data, 0, sizeof(t_data));
+// 	get_map(data, argv[1]);
 // 	return 0;
 // }
+
+// gcc map.c libft.a libgnl.a

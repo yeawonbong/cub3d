@@ -171,16 +171,16 @@ void	draw_things(t_data *data)
 	{
 		for(int j = -se; j < se; j++)
 		{
-			my_mlx_pixel_put(data, i + data->width / 4 * 3, j + data->height / 3, 0x80CFCF90);
-			arr[i * 10 + data->width / 4 * 10][j * 10 + data->height / 3 * 20] = 2;
+			my_mlx_pixel_put(data, i + data->map.width / 4 * 3, j + data->map.height / 3, 0x80CFCF90);
+			arr[i * 10 + data->map.width / 4 * 10][j * 10 + data->map.height / 3 * 20] = 2;
 		}
 	}
 	for(int i = -ga; i < ga; i++)
 	{
 		for(int j = -se; j < se; j++)
 		{
-			my_mlx_pixel_put(data, i + data->width / 4, j + data->height / 3 * 2, 0x80909FCF);
-			arr[i * 10 + data->width / 4 * 30][j * 10 + data->height / 3 * 10] = 1;
+			my_mlx_pixel_put(data, i + data->map.width / 4, j + data->map.height / 3 * 2, 0x80909FCF);
+			arr[i * 10 + data->map.width / 4 * 30][j * 10 + data->map.height / 3 * 10] = 1;
 		}
 	}
 	//mlx_put_image_to_window(data->mlx, data->win, data->img, 0, 0);
@@ -478,8 +478,8 @@ int		loop_ft(t_data *data)
 
 void	dataset(t_data *data)
 {
-	data->width = 1080;
-	data->height = 720;
+	// data->width = 1080;
+	// data->height = 720;
 
 	data->player.left = 0;
 	data->player.right = 0;
@@ -579,9 +579,9 @@ int		main(int agc, char *agv[])
 		data.win = mlx_new_window(data.mlx, data.map.width * 100, data.map.height * 100 + 100, "minsikim_shooting");
 	}
 	else
-		data.win = mlx_new_window(data.mlx, data.width, data.height, "minsikim_shooting");
+		data.win = mlx_new_window(data.mlx, data.map.width, data.map.height, "minsikim_shooting");
 
-	data.img = mlx_new_image(data.mlx, data.width, data.height + 100);
+	data.img = mlx_new_image(data.mlx, data.map.width, data.map.height + 100);
 	data.addr = mlx_get_data_addr(data.img, &data.bits_per_pixel, &data.line_length, &data.endian);
 
 	mlx_hook(data.win, 2, 1L<<1, tracing, &data); // keyboard

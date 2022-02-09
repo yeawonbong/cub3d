@@ -39,6 +39,7 @@
 // gcc -lmlx -framework OpenGL -framework Appkit testmain.c
 // gcc -lmlx -framework OpenGL -framework Appkit testmain.c -L. -lgnl
 
+// gcc -lmlx -framework OpenGL -framework Appkit testmain.c map.c libft.a -L. -lgnl
 // arch -x86_64 gcc -lmlx -framework OpenGL -framework Appkit testmain.c map.c libft.a -L. -lgnl
 
 char	arr[16001][10001]; // until 1600 * 1000
@@ -111,8 +112,8 @@ typedef struct	s_data {
 	int		bits_per_pixel;
 	int		line_length;
 	int		endian;
-	int		width;
-	int		height;
+	// int		width;
+	// int		height;
 	unsigned long	frame;
 	int		item;
 	int		now;
