@@ -51,12 +51,7 @@ typedef struct	s_player
 	int		pcolor;
 	char	*charic;
 	int		hack;
-	int		hitted;
 
-	float	HP;
-	int		shoot;
-	int		shooted;
-	int		lose_count;
 	int		frame;
 
 	double	vec_x;
@@ -85,17 +80,26 @@ typedef struct	s_map
 	
 }				t_map;
 
+typedef struct	s_img {
+	void	*img_ptr;
+	int		*img_data;
+	int		w;
+	int		h;
+	int		bpp;
+	int		line;
+	int		endian;
+}				t_img;
+
 typedef struct	s_data {
 	void	*mlx;
 	void	*win;
 
 	void	*img;
-	char	*addr;
+	int		*addr;
+
 	int		bits_per_pixel;
 	int		line_length;
 	int		endian;
-	// int		width; //ㅇㅗㄹㅁ
-	// int		height;
 	unsigned long	frame;
 	int		item;
 	int		now;
@@ -105,8 +109,14 @@ typedef struct	s_data {
 	int		short_x;
 	int		space;
 
+	void	*imgadd;
+	char	**xpmdata;
+	int		w;
+	int		h;
+
 	t_map		map;
 	t_player	player;
+	t_img		iiii;
 
 	int		m1;
 	int		m2;

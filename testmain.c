@@ -4,7 +4,7 @@ void    my_mlx_pixel_put(t_data *data, int x, int y, int color)
 {
     char	*dst;
 
-	dst = data->addr + (y * data->line_length + x * (data->bits_per_pixel / 8));
+	dst = (char *)data->addr + (y * data->line_length + x * (data->bits_per_pixel / 8));
 	*(unsigned int*)dst = color;
 }
 
@@ -16,9 +16,27 @@ void    vec_mlx_pixel_put(t_data *data, t_player *player, int i, int j, int colo
 	// i -= 40; // why??? -> +aim
 	// j -= 40;
 
-	dst = data->addr + ((int)(y + i * player->vec_y + j * sin(player->theta + M_PI_2)) * data->line_length
+	dst = (char *)data->addr + ((int)(y + i * player->vec_y + j * sin(player->theta + M_PI_2)) * data->line_length
 		+ (int)(x + i * player->vec_x + j * cos(player->theta + M_PI_2)) * (data->bits_per_pixel / 8));
 	*(unsigned int*)dst = color;
+}
+
+int		set_color(int short_d)
+{
+	int		r;
+	int		g;
+	int		b;
+
+	r = 0xFF - (short_d / 3);// 0xTTRRGGBB
+	g = 0xFF - (short_d / 3);
+	b = 0xFF - (short_d / 3);
+	if (r < 0)
+		r = 0x00;
+	if (g < 0)
+		g = 0x00;
+	if (b < 0)
+		b = 0x00;
+	return (r << 16 | g << 8 | b);
 }
 
 void	draw_aim(t_data data, t_player player)
@@ -40,7 +58,7 @@ void	remove_pix(t_data *data, t_player *player)
 	int		x = player->x;
 	int		y = player->y;
 
-	printf("x:%d y:%d %f %f\n", x, y, player->vec_x, player->vec_y);
+	// printf("x:%d y:%d %f %f\n", x, y, player->vec_x, player->vec_y);
 	for (int i = 0; i < 6; i++) // remove aim
 	{
 		for (int j = 0; j < 6; j++)
@@ -48,13 +66,13 @@ void	remove_pix(t_data *data, t_player *player)
 			my_mlx_pixel_put(data, x + player->vec_x * (data->aim + 19) + i - 3, y + player->vec_y * (data->aim + 19) + j - 3, 0x00000000);
 		}
 	}
-	// for(int i = -20 / 2; i < 20 / 2; i++) // remove hack
-	// {
-	// 	for(int j = -20 / 2; j < 20 / 2; j++)
-	// 	{
-	// 		my_mlx_pixel_put(data, x + i, y + j, 0);
-	// 	}
-	// }
+	for(int i = -20 / 2; i < 20 / 2; i++) // remove hack
+	{
+		for(int j = -20 / 2; j < 20 / 2; j++)
+		{
+			my_mlx_pixel_put(data, x + i, y + j, 0);
+		}
+	}
 }
 
 int		tracing(int keycode, t_data *data)
@@ -63,8 +81,6 @@ int		tracing(int keycode, t_data *data)
 	
 	if (keycode == 49)
 		data->space = 1;
-	if (keycode == 258)
-		data->player.shoot = 1;
 
 	if (keycode == 126)
 		data->player.up = 1;
@@ -83,10 +99,6 @@ int		tracing(int keycode, t_data *data)
 	// 	data->player2.left = 1;
 	// if (keycode == 2)
 	// 	data->player2.right = 1;
-	// if (keycode == 34)
-	// {
-	// 	clear(data);
-	// }
 	if (keycode == 53)
 		exit(0);
 
@@ -108,43 +120,11 @@ int		release(int keycode, t_data *data)
 	if (keycode == 124)
 		data->player.right = 0;
 
-	// if (keycode == 13)
-	// 	data->player2.up = 0;
-	// if (keycode == 1)
-	// 	data->player2.down = 0;
-	// if (keycode == 0)
-	// 	data->player2.left = 0;
-	// if (keycode == 2)
-	// 	data->player2.right = 0;
 	if (keycode == 53)
 		exit(0);
 	
 	return (0);
 }
-
-// void	draw_things(t_data *data)
-// {
-// 	int		ga = 80;
-// 	int		se = 40;
-
-// 	for(int i = -ga; i < ga; i++) // 1
-// 	{
-// 		for(int j = -se; j < se; j++)
-// 		{
-// 			my_mlx_pixel_put(data, i + data->map.width / 4 * 3, j + data->map.height / 3, 0x80CFCF90);
-// 			arr[i * 10 + data->map.width / 4 * 10][j * 10 + data->map.height / 3 * 20] = 2;
-// 		}
-// 	}
-// 	for(int i = -ga; i < ga; i++)
-// 	{
-// 		for(int j = -se; j < se; j++)
-// 		{
-// 			my_mlx_pixel_put(data, i + data->map.width / 4, j + data->map.height / 3 * 2, 0x80909FCF);
-// 			arr[i * 10 + data->map.width / 4 * 30][j * 10 + data->map.height / 3 * 10] = 1;
-// 		}
-// 	}
-// 	//mlx_put_image_to_window(data->mlx, data->win, data->img, 0, 0);
-// }
 
 void	draw_hack(t_data *data, t_player *player, int ga, int color)
 {
@@ -160,12 +140,30 @@ void	draw_hack(t_data *data, t_player *player, int ga, int color)
 	}
 }
 
+void	draw_up_down(t_data *data, t_map map)
+{
+	int		i;
+	int		j;
+	int		color;
+
+	i = -1;
+	while (++i < map.width)
+	{
+		j = -1;
+		while(++j < map.height / 2)
+		{
+			color = set_color(j);
+			my_mlx_pixel_put(data, i, map.height / 2 + j, (0xFFFFFF - color));
+			my_mlx_pixel_put(data, i, map.height / 2 - j, 0xFFFFFF - color);
+		}
+	}
+}
+
 void	draw(t_data *data, t_player *player, int color)
 {
 	draw_aim(*data, *player);
 	draw_hack(data, player, 18, 0x0064D897);
-	
-	mlx_put_image_to_window(data->mlx, data->win, data->img, 0, 0);
+	draw_up_down(data, data->map);
 }
 
 int		check_quard(double theta)
@@ -199,9 +197,9 @@ int	follow_x1_no(t_data *data, t_player player, double theta) // 1
 	double	d_x;
 	double	d_y;
 
-	w_x = (int)(player.x) / 100 * 100 + 100;
-	w_y = (int)(player.y) / 100 * 100 + 100;
-	while (data->map.maparr[w_y / 100 - 1][w_x / 100 - 1] != '1') // && (w_x / 100) < data->map.width && (w_y / 100) < data->m_height)
+	w_x = (int)(player.x) / BITSIZE * BITSIZE + BITSIZE;
+	w_y = (int)(player.y) / BITSIZE * BITSIZE + BITSIZE;
+	while (data->map.maparr[w_y / BITSIZE - 1][w_x / BITSIZE - 1] != '1') // && (w_x / BITSIZE) < data->map.width && (w_y / BITSIZE) < data->m_height)
 	{
 		d_x = (w_x - player.x) / cos(theta); // x와 만나는 선의 길이
 		d_y = (w_y - player.y) / sin(theta); // y와 만나는 선의 길이
@@ -211,9 +209,9 @@ int	follow_x1_no(t_data *data, t_player player, double theta) // 1
 			d_y *= -1;
 
 		if (d_x < d_y)
-			w_x += 100;
+			w_x += BITSIZE;
 		else
-			w_y += 100;
+			w_y += BITSIZE;
 	}
 
 	if (d_x < d_y)
@@ -232,9 +230,9 @@ double	follow_x1(t_data *data, t_player player, double theta) // 1
 	double	d_y;
 
 	data->short_x = 0;
-	w_x = (int)(player.x) / 100 * 100 + 100;
-	w_y = (int)(player.y) / 100 * 100 + 100;
-	while (data->map.maparr[w_y / 100 - 1][w_x / 100 - 1] != '1') // && (w_x / 100) < data->map.width && (w_y / 100) < data->m_height)
+	w_x = (int)(player.x) / BITSIZE * BITSIZE + BITSIZE;
+	w_y = (int)(player.y) / BITSIZE * BITSIZE + BITSIZE;
+	while (data->map.maparr[w_y / BITSIZE - 1][w_x / BITSIZE - 1] != '1') // && (w_x / BITSIZE) < data->map.width && (w_y / BITSIZE) < data->m_height)
 	{
 		d_x = (w_x - player.x) / cos(theta); // x와 만나는 선의 길이
 		d_y = (w_y - player.y) / sin(theta); // y와 만나는 선의 길이
@@ -244,14 +242,13 @@ double	follow_x1(t_data *data, t_player player, double theta) // 1
 			d_y *= -1;
 
 		if (d_x < d_y)
-			w_x += 100;
+			w_x += BITSIZE;
 		else
-			w_y += 100;
+			w_y += BITSIZE;
 	}
 
-	data->wall_x = w_x - 100;
-	data->wall_y = w_y - 100;
-	// printf("d_x:%f d_y:%f, w_x:%d w_y:%d\n", d_x, d_y, w_x, w_y);
+	data->wall_x = w_x - BITSIZE;
+	data->wall_y = w_y - BITSIZE;
 	if (d_x < d_y)
 	{
 		data->short_x = 1;
@@ -269,9 +266,9 @@ double	follow_x2(t_data *data, t_player player, double theta)
 	double	d_y;
 
 	data->short_x = 0;
-	w_x = (int)(player.x) / 100 * 100;
-	w_y = (int)(player.y) / 100 * 100 + 100;
-	while (data->map.maparr[w_y / 100 - 1][w_x / 100] != '1') // && (w_x / 100) < data->map.width && (w_y / 100) < data->m_height)
+	w_x = (int)(player.x) / BITSIZE * BITSIZE;
+	w_y = (int)(player.y) / BITSIZE * BITSIZE + BITSIZE;
+	while (data->map.maparr[w_y / BITSIZE - 1][w_x / BITSIZE] != '1') // && (w_x / BITSIZE) < data->map.width && (w_y / BITSIZE) < data->m_height)
 	{
 		d_x = (w_x - player.x) / cos(theta); // x와 만나는 선의 길이
 		d_y = (w_y - player.y) / sin(theta); // y와 만나는 선의 길이
@@ -280,18 +277,14 @@ double	follow_x2(t_data *data, t_player player, double theta)
 		if (d_y < 0)
 			d_y *= -1;
 
-		// if (data->map.maparr[w_y / 100][w_x / 100] == '1')
-		// 	break ;
 		if (d_x < d_y)
-			w_x -= 100;
+			w_x -= BITSIZE;
 		else
-			w_y += 100;
+			w_y += BITSIZE;
 	}
-	// d_x = (w_x - player.x) / cos(player.theta);
-	// d_y = (w_y - player.y) / sin(player.theta);
 
-	data->wall_x = w_x + 100;
-	data->wall_y = w_y - 100;
+	data->wall_x = w_x + BITSIZE;
+	data->wall_y = w_y - BITSIZE;
 	// printf("d_x:%f d_y:%f, w_x:%d w_y:%d\n", d_x, d_y, w_x, w_y);
 	if (d_x < d_y)
 	{
@@ -310,9 +303,9 @@ double	follow_x3(t_data *data, t_player player, double theta)
 	double	d_y;
 
 	data->short_x = 0;
-	w_x = (int)(player.x) / 100 * 100;
-	w_y = (int)(player.y) / 100 * 100;
-	while (data->map.maparr[w_y / 100][w_x / 100] != '1') // && (w_x / 100) < data->map.width && (w_y / 100) < data->m_height)
+	w_x = (int)(player.x) / BITSIZE * BITSIZE;
+	w_y = (int)(player.y) / BITSIZE * BITSIZE;
+	while (data->map.maparr[w_y / BITSIZE][w_x / BITSIZE] != '1') // && (w_x / BITSIZE) < data->map.width && (w_y / BITSIZE) < data->m_height)
 	{
 		d_x = (w_x - player.x) / cos(theta); // x와 만나는 선의 길이
 		d_y = (w_y - player.y) / sin(theta); // y와 만나는 선의 길이
@@ -321,18 +314,14 @@ double	follow_x3(t_data *data, t_player player, double theta)
 		if (d_y < 0)
 			d_y *= -1;
 
-		// if (data->map.maparr[w_y / 100][w_x / 100] == '1')
-		// 	break ;
 		if (d_x < d_y)
-			w_x -= 100;
+			w_x -= BITSIZE;
 		else
-			w_y -= 100;
+			w_y -= BITSIZE;
 	}
-	// d_x = (w_x - player.x) / cos(player.theta);
-	// d_y = (w_y - player.y) / sin(player.theta);
 
-	data->wall_x = w_x + 100;
-	data->wall_y = w_y + 100;
+	data->wall_x = w_x + BITSIZE;
+	data->wall_y = w_y + BITSIZE;
 	// printf("d_x:%f d_y:%f, w_x:%d w_y:%d\n", d_x, d_y, w_x, w_y);
 	if (d_x < d_y)
 	{
@@ -351,9 +340,9 @@ double	follow_x4(t_data *data, t_player player, double theta)
 	double	d_y;
 
 	data->short_x = 0;
-	w_x = (int)(player.x) / 100 * 100 + 100;
-	w_y = (int)(player.y) / 100 * 100;
-	while (data->map.maparr[w_y / 100][w_x / 100 - 1] != '1') // && (w_x / 100) < data->map.width && (w_y / 100) < data->m_height)
+	w_x = (int)(player.x) / BITSIZE * BITSIZE + BITSIZE;
+	w_y = (int)(player.y) / BITSIZE * BITSIZE;
+	while (data->map.maparr[w_y / BITSIZE][w_x / BITSIZE - 1] != '1') // && (w_x / BITSIZE) < data->map.width && (w_y / BITSIZE) < data->m_height)
 	{
 		d_x = (w_x - player.x) / cos(theta); // x와 만나는 선의 길이
 		d_y = (w_y - player.y) / sin(theta); // y와 만나는 선의 길이
@@ -363,13 +352,13 @@ double	follow_x4(t_data *data, t_player player, double theta)
 			d_y *= -1;
 
 		if (d_x < d_y)
-			w_x += 100;
+			w_x += BITSIZE;
 		else
-			w_y -= 100;
+			w_y -= BITSIZE;
 	}
 
-	data->wall_x = w_x - 100;
-	data->wall_y = w_y + 100;
+	data->wall_x = w_x - BITSIZE;
+	data->wall_y = w_y + BITSIZE;
 	if (d_x < d_y)
 	{
 		data->short_x = 1;
@@ -379,72 +368,62 @@ double	follow_x4(t_data *data, t_player player, double theta)
 		return (d_y);
 }
 
-// void	check_direction(t_data *data, t_player player, double theta)
-// {
-// 	int		quard;
-
-// 	quard = check_quard(player.theta);
-// 	if (quard == 1)
-// 	{
-// 		if (follow_x1_no(data, player, player.theta) != follow_x1_no(data, player, theta))
-// 			data->fish = 1;
-// 		else
-// 			data->fish = 0;
-// 	}
-// }
-
-void	pixel_put_wall_1(t_data *data, int short_d, int i)
+void	pixel_put_wall_1(t_data *data, int short_d, int theta, int i)
 {
 	int		j;
+	int		img_y;
+	int		color_up;
+	int		color_down;
+	int		img_x;
 	// if (data->fish == 1)
 	// 	short_d = short_d * cos(((double)i / 400) * (M_PI / 6) - M_PI / 2);
 	// else
 	short_d = short_d * cos(((double)i / (data->map.width / 2)) * (M_PI / 6));
+	if (data->short_x == 1)
+	{
+		img_x = data->wall_y - sin(theta) * short_d;
+		printf("img_x:%d\n", img_x);
+	}
 
 	if (short_d < 0)
 		short_d *= -1;
-	if (data->map.height * 40 / short_d > data->map.height / 2)
-	short_d = data->map.height * 40 / (data->map.height / 2);
+	if (data->map.height * (BITSIZE / 2) > data->map.height * short_d / 2)
+		short_d = data->map.height * (BITSIZE / 2) / (data->map.height / 2);
+	// shadow = set_color(short_d);
 	j = -1;
-	while (++j < data->map.height * 40 / short_d)
+	while (++j < data->map.height * (BITSIZE / 2) / short_d)
 	{
-		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 + j, 0x00FF0000);
-		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 - j, 0x00FF0000);
+		img_y = (double)j * (BITSIZE / 2) / (data->map.height * (BITSIZE / 2) / short_d) - 2;
+		// printf("img_y:%d", img_y);
+		// for (int k = 0; k < (data->map.height * (BITSIZE / 2) / short_d) / BITSIZE; k++)
+		color_down = data->iiii.img_data[img_x + BITSIZE * (BITSIZE / 2 + img_y)];
+		color_up = data->iiii.img_data[img_x + BITSIZE * (BITSIZE / 2 - img_y)];
+		// printf("%d, %d\n", (i + (data->map.width / 2)) * 64 / data->map.width, (j % 64));
+		// data->addr[i + data->iiii.w * (j)] = color;
+		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 + j, color_down);
+		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 - 1 - j, color_up);
 	}
-	// if (short_d > 10)
-	// {
-	// 	for (int j = 0; j < data->map.height * 40 / short_d && data->map.height * 40 / short_d < data->map.height / 2; j++)
-	// 	{
-	// 		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 + j, 0x00FF0000);
-	// 		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 - j, 0x00FF0000);
-	// 	}
-	// }
 }
 
 void	pixel_put_wall_2(t_data *data, int short_d, int i)
 {
 	int		j;
+	int		color;
 
 	short_d = short_d * cos(((double)i / (data->map.width / 2)) * (M_PI / 6));
 	if (short_d < 0)
 		short_d *= -1;
-	if (data->map.height * 40 / short_d > data->map.height / 2)
-		short_d = data->map.height * 40 / (data->map.height / 2);
+	if (data->map.height * (BITSIZE / 2) > data->map.height * short_d / 2)
+		short_d = data->map.height * (BITSIZE / 2) / (data->map.height / 2);
+	color = set_color(short_d) - 0x00151515;
+	if (color < 0)
+		color = 0;
 	j = -1;
-	while (++j < data->map.height * 40 / short_d)
+	while (++j < data->map.height * (BITSIZE / 2) / short_d)
 	{
-		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 + j, 0x00FF8800);
-		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 - j, 0x00FF8800);
+		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 + j, color);
+		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 - j, color);
 	}
-	
-	// if (short_d > 10)
-	// {
-	// 	for (int j = 0; j < data->map.height * 40 / short_d && data->map.height * 40 / short_d < data->map.height / 2; j++)
-	// 	{
-	// 		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 + j, 0x00FF8800);
-	// 		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 - j, 0x00FF8800);
-	// 	}
-	// }
 }
 
 void	remove_pixel_put_wall(t_data *data, int short_d, int i)
@@ -454,22 +433,14 @@ void	remove_pixel_put_wall(t_data *data, int short_d, int i)
 	short_d = short_d * cos(((double)i / (data->map.width / 2)) * (M_PI / 6));
 	if (short_d < 0)
 		short_d *= -1;
-	if (data->map.height * 40 / short_d > data->map.height / 2)
-		short_d = data->map.height * 40 / (data->map.height / 2);
+	if (data->map.height * (BITSIZE / 2) > data->map.height * short_d / 2)
+		short_d = data->map.height * (BITSIZE / 2) / (data->map.height / 2);
 	j = -1;
-	while (++j < data->map.height * 40 / short_d)
+	while (++j < data->map.height * (BITSIZE / 2) / short_d)
 	{
 		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 + j, 0x00000000);
 		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 - j, 0x00000000);
 	}
-	// if (short_d > 10)
-	// {
-	// 	for (int j = 0; j < data->map.height * 40 / short_d && data->map.height * 40 / short_d < data->map.height / 2; j++)
-	// 	{
-	// 		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 + j, 0x00000000);
-	// 		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 - j, 0x00000000);
-	// 	}
-	// }
 }
 
 void	remove_find_wall(t_data *data, t_player player, double theta, int i)
@@ -480,8 +451,6 @@ void	remove_find_wall(t_data *data, t_player player, double theta, int i)
 	double	short_d;
 
 	quard = check_quard(theta);
-	// check_direction(data, player, theta); // for fish eyes
-	// printf("%d\n", quard);
 	if (quard == 1) // 근데 여기선 4사분면 (보이는것만 4사분면이고 계산은 1사분면으로!)
 	{
 		short_d = follow_x1(data, player, theta);
@@ -512,60 +481,74 @@ void	find_wall(t_data *data, t_player player, double theta, int i)
 	double	short_d;
 
 	quard = check_quard(theta); // for ray casting
-	// check_direction(data, theta, quard); // for fish eyes
-	// printf("%d\n", quard);
 	if (quard == 1) // 근데 여기선 4사분면 (보이는것만 4사분면이고 계산은 1사분면으로!)
 	{
 		short_d = follow_x1(data, player, theta);
+		data->wall_y -= (int)player.y;
 		if (data->short_x == 1)
-			pixel_put_wall_1(data, short_d, i);
+			pixel_put_wall_1(data, short_d, theta, i);
 		else
 			pixel_put_wall_2(data, short_d, i);
-		// if (data->short_x == 1)
-		// 	my_mlx_pixel_put(data, data->wall_x, player.y + sin(theta) * short_d, 0x00FF0000);
-		// else
-		// 	my_mlx_pixel_put(data, player.x + cos(theta) * short_d, data->wall_y, 0x00FF0000);
 	}
 	if (quard == 2) // 근데 여기선 3사분면
 	{
 		short_d = follow_x2(data, player, theta);
 		
 		if (data->short_x == 1)
-			pixel_put_wall_1(data, short_d, i);
+			pixel_put_wall_1(data, short_d, theta, i);
 		else
 			pixel_put_wall_2(data, short_d, i);
-		// if (data->short_x == 1)
-		// 	my_mlx_pixel_put(data, data->wall_x, player.y + sin(theta) * short_d, 0x00FF0000);
-		// else
-		// 	my_mlx_pixel_put(data, player.x + cos(theta) * short_d, data->wall_y, 0x00FF0000);
 	}
 	if (quard == 3)
 	{
 		short_d = follow_x3(data, player, theta);
 		if (data->short_x == 1)
-			pixel_put_wall_1(data, short_d, i);
+			pixel_put_wall_1(data, short_d, theta, i);
 		else
 			pixel_put_wall_2(data, short_d, i);
-		// if (data->short_x == 1)
-		// 	my_mlx_pixel_put(data, data->wall_x, player.y + sin(theta) * short_d, 0x00FF0000);
-		// else
-		// 	my_mlx_pixel_put(data, player.x + cos(theta) * short_d, data->wall_y, 0x00FF0000);
 	}
 	if (quard == 4)
 	{
 		short_d = follow_x4(data, player, theta);
 		if (data->short_x == 1)
-			pixel_put_wall_1(data, short_d, i);
+			pixel_put_wall_1(data, short_d, theta, i);
 		else
 			pixel_put_wall_2(data, short_d, i);
-		// if (data->short_x == 1)
-		// 	my_mlx_pixel_put(data, data->wall_x, player.y + sin(theta) * short_d, 0x00FF0000);
-		// else
-		// 	my_mlx_pixel_put(data, player.x + cos(theta) * short_d, data->wall_y, 0x00FF0000);
 	}
 }
 
-int		stopping(t_map map, t_player player)
+// int	go_stopping(t_data *data, t_player player, double theta)
+// {
+// 	int		quard;
+// 	int		w_x;
+// 	int		w_y;
+// 	double	short_d;
+
+// 	quard = check_quard(theta); // for ray casting
+// 	if (quard == 1) // 근데 여기선 4사분면 (보이는것만 4사분면이고 계산은 1사분면으로!)
+// 	{
+// 		short_d = follow_x1(data, player, theta);
+// 	}
+// 	if (quard == 2) // 근데 여기선 3사분면
+// 	{
+// 		short_d = follow_x2(data, player, theta);
+// 	}
+// 	if (quard == 3)
+// 	{
+// 		short_d = follow_x3(data, player, theta);
+// 	}
+// 	if (quard == 4)
+// 	{
+// 		short_d = follow_x4(data, player, theta);
+// 	}
+// 	printf("short_d = %f, player.m_s : %f", short_d, player.move_speed);
+// 	if (short_d > 2 * player.move_speed)
+// 		return (1);
+// 	else
+// 		return (0);
+// }
+
+int		go_stopping(t_map map, t_player player)
 {
 	double	v_x;
 	double	v_y;
@@ -581,8 +564,30 @@ int		stopping(t_map map, t_player player)
 	if (player.vec_x > -0.3 && player.vec_x < 0) // -0.2 < 0
 		v_x = -0.3;
 
-	if (map.maparr [(int)(player.y + v_y * 3 * player.move_speed) / 100]\
-		[(int)(player.x + v_x * 3 * player.move_speed) / 100] == '1')
+	if (map.maparr [(int)(player.y + v_y * 3 * player.move_speed) / BITSIZE]\
+		[(int)(player.x + v_x * 3 * player.move_speed) / BITSIZE] == '1')
+		return (0);
+	return (1);
+}
+
+int		back_stopping(t_map map, t_player player)
+{
+	double	v_x;
+	double	v_y;
+
+	v_x = player.vec_x;
+	v_y = player.vec_y;
+	if (player.vec_y < 0.3 && player.vec_y > 0) // 0 ~ 0.2
+		v_y = 0.3;
+	if (player.vec_y > -0.3 && player.vec_y < 0) // -0.2 < 0
+		v_y = -0.3;
+	if (player.vec_x < 0.3 && player.vec_x > 0) // 0 ~ 0.2
+		v_x = 0.3;
+	if (player.vec_x > -0.3 && player.vec_x < 0) // -0.2 < 0
+		v_x = -0.3;
+
+	if (map.maparr [(int)(player.y - v_y * player.move_speed) / BITSIZE]\
+		[(int)(player.x - 3 * v_x * player.move_speed) / BITSIZE] == '1')
 		return (0);
 	return (1);
 }
@@ -603,34 +608,42 @@ void	moving(t_data *data, t_player *player)
 	player->vec_x = cos(player->theta);
 	player->vec_y = sin(player->theta);
 
-	//printf("x, y = %d, %d\n", (int)player->x, (int)player->y);
-	
 	if (player->left == 1)
-	{
 		player->theta -= data->rotate_speed;
-		//printf("x, y = (%f, %f)\n", player->vec_x, player->vec_y);
-		//data->x -= 1;
-	}
 	if (player->right == 1)
-	{
 		player->theta += data->rotate_speed;
-		//printf("x, y = (%f, %f)\n", player->vec_x, player->vec_y);
-		//data->player->x += 1;
-	}
-	if (player->up == 1 && stopping(data->map, *player))
+	if (player->up == 1 && go_stopping(data->map, *player))
 	{
 		remove_pix(data, player);
 		player->x += player->vec_x * player->move_speed;
 		player->y += player->vec_y * player->move_speed;
 	}
-	if (player->down == 1) //&& player->y < data->map.height - 30
+	if (player->down == 1 && back_stopping(data->map, *player)) //&& player->y < data->map.height - (BITSIZE / 2))
 	{
 		remove_pix(data, player);
 		player->x -= player->vec_x * player->move_speed;
 		player->y -= player->vec_y * player->move_speed;
 	}
-	printf("%d,%d\n", (int)(player->x + player->vec_x * player->move_speed) / 100\
-					, (int)(player->y + player->vec_y * player->move_speed) / 100);
+}
+
+void	draw_practice(t_data *data, t_img *iiii)
+{
+	iiii->img_ptr = mlx_xpm_file_to_image(data->mlx, "./textures/coffee64.XPM", &data->w, &data->h);
+	iiii->img_data = (int *)mlx_get_data_addr(iiii->img_ptr, &iiii->bpp, &iiii->line, &iiii->endian);
+	int color;
+	// for (int i = 0; i < 10; i++)//iiii->img_data[i]; i++)
+	// printf("img_data:%x\n", iiii->img_data[15 + 4 * 64]);
+	for (int i = 0; i < BITSIZE; i++)
+	{
+		for (int j = 0; j < BITSIZE; j++)
+		{
+			color = iiii->img_data[i + BITSIZE * j];
+			my_mlx_pixel_put(data, i, j, color);
+		}
+	}
+	
+	// my_mlx_pixel_put(iiii->img)
+	// data.imgadd = mlx_xpm_to_image(data.mlx, data.xpmdata, &data.w, &data.h);
 }
 
 int		loop_ft(t_data *data)
@@ -639,7 +652,6 @@ int		loop_ft(t_data *data)
 	moving(data, &data->player); // (remove)
 	draw(data, &data->player, data->player.pcolor); // outside
 
-	// printf("%lu\n", data->frame);
 	if (data->frame % 50 == 1)
 		printf("x:%f, y:%f\n", data->player.x, data->player.y);
 
@@ -647,8 +659,9 @@ int		loop_ft(t_data *data)
 	{
 		find_wall(data, data->player, data->player.theta + ((double)i / (data->map.width / 2)) * (M_PI / 6), i);
 	}
+	draw_practice(data, &data->iiii); // 
 	mlx_put_image_to_window(data->mlx, data->win, data->img, 0, 0);
-
+	// mlx_put_image_to_window(data->mlx, data->win, data->iiii.img_ptr, 0, 0); // 
 	return (0);
 }
 
@@ -667,67 +680,8 @@ void	dataset(t_data *data)
 	data->now = 0;
 	data->aim = 35;
 	data->player.move_speed = 3;
-	data->rotate_speed = 0.04;
+	data->rotate_speed = 0.023;
 }
-
-// void	set_map(int fd, char **argv, t_data *data)
-// {
-// 	int		i;
-// 	char	*line;
-// 	int		width;
-
-// 	line = 0;
-// 	data->map.width = 0;
-// 	get_next_line(fd, &line);
-// 	while (line[data->map.width] != 0)
-// 		data->map.width++;
-// 	i = 1;
-// 	while (get_next_line(fd, &line) > 0)
-// 	{
-// 		width = 0;
-// 		while (line[width] != 0)
-// 			width++;
-// 		// if (data->map.width != width)
-// 		// 	exit(1);
-// 		i++;
-// 	}
-// 	data->map.maparr = (char **)malloc(sizeof(char *) * i + 1);
-// 	data->map.height = i;
-// 	fd = open(argv[1], O_RDONLY);
-// 	i = 0;
-// 	while (get_next_line(fd, &(data->map.maparr[i])))
-// 		i++;
-// }
-
-// void	make_map(int fd, char **map)
-// {
-// 	int		i;
-// 	char	*line;
-// 	int		width;
-
-// 	line = 0;
-// 	i = 0;
-// 	while (get_next_line(fd, &line) > 0)
-// 	{
-// 		map[i] = line;
-// 		// if (data->map.width != width)
-// 		// 	exit(1);
-// 		i++;
-// 	}
-// }
-
-// void	mappasing(t_data *data, char **agv)
-// {
-// 	int		fd;
-
-// 	fd = open(agv[1], O_RDONLY);
-// 	set_map(fd, agv, data);
-// 	make_map(fd, data->map.maparr);
-// 	data->player.x = data->map.width * 50;
-// 	data->player.y = data->map.height * 50;
-// 	data->map.width = data->map.width * 100;
-// 	data->map.height = data->map.height * 100;
-// }
 
 int		main(int agc, char *argv[])
 {
@@ -740,16 +694,13 @@ int		main(int agc, char *argv[])
 	{
 		get_map(&data, argv[1]);
 		data.mlx = mlx_init();
-		// int i = -1;
-		// while (data.map[++i])
-		// 	printf("%s\n", data.map[i]);
 		data.win = mlx_new_window(data.mlx, data.map.width, data.map.height, "minsikim_shooting");
 	}
 	else
 		data.win = mlx_new_window(data.mlx, data.map.width, data.map.height, "minsikim_shooting");
 	
-	data.img = mlx_new_image(data.mlx, data.map.width, data.map.height + 100);
-	data.addr = mlx_get_data_addr(data.img, &data.bits_per_pixel, &data.line_length, &data.endian);
+	data.img = mlx_new_image(data.mlx, data.map.width, data.map.height + BITSIZE);
+	data.addr = (int *)mlx_get_data_addr(data.img, &data.bits_per_pixel, &data.line_length, &data.endian);
 
 	mlx_hook(data.win, 2, 1L<<1, tracing, &data); // keyboard
 	mlx_do_key_autorepeaton(data.mlx);

@@ -6,7 +6,7 @@
 /*   By: minsikim <minsikim@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/10 14:15:00 by ybong             #+#    #+#             */
-/*   Updated: 2022/02/11 16:49:01 by minsikim         ###   ########.fr       */
+/*   Updated: 2022/02/14 11:55:18 by minsikim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,8 +132,8 @@ int	isvalid_map(t_map *map, t_player *player)
 		{
 			if (ft_strchr("NSEW", maparr[i][j]) && !player->dir)
 			{
-				player->x = j * 100;
-				player->y = i * 100;
+				player->x = j * BITSIZE;
+				player->y = i * BITSIZE;
 				player->dir = maparr[i][j];
 				set_direction(player);
 			}
