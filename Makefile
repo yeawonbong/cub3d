@@ -4,12 +4,14 @@ OUT = cub3d
 LIB = cub3d.a
 SRC = testmain.c \
 		map.c \
+		map_util.c \
 		moving.c \
 		pixel_put.c \
 		pixel_put_wall.c \
 		find_wall.c \
 		draw.c \
 		follow_quard.c \
+		follow_while.c \
 		setting.c
 
 OBJ = $(SRC:.c=.o)
@@ -26,10 +28,10 @@ $(OBJ) : $(SRC)
 	gcc $(CFLAGES) -c $(SRC)
 
 clean :
-	rm -rf $(OBJECTS) $(OBJECTS_BONUS)
+	rm -rf $(OBJECTS)
 
 fclean : clean
-	rm -rf $(OUT) $(SILHANG_BONUS)
+	rm -rf $(OUT) $(OBJ)
 
 re : fclean all
 

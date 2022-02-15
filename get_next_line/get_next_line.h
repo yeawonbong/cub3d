@@ -6,7 +6,7 @@
 /*   By: minsikim <minsikim@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/31 19:48:36 by ybong             #+#    #+#             */
-/*   Updated: 2022/02/11 13:47:34 by minsikim         ###   ########.fr       */
+/*   Updated: 2022/02/15 15:13:28 by minsikim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 # include <stdio.h>
 # include "../libft/libft.h"
 
-#  define BUFFER_SIZE 3
+# define BUFFER_SIZE 3
 
 char	*gnl_strjoin(char *s1, char *s2);
 int		get_next_line(int fd, char **line);
