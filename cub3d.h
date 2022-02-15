@@ -140,4 +140,36 @@ int	get_map_info_process(t_data *data, int fd, char *line, int i);
 int	isvalid_map_process(t_map *map, char **maparr, int i, int j);
 void	get_map_size(t_data *data, char *line, int fd);
 
+void    my_mlx_pixel_put(t_data *data, int x, int y, int color); //pixel_put.c
+void    vec_mlx_pixel_put(t_data *data, t_player *player, int i, int j, int color);
+int		set_color_shadow(double short_d, int color);
+int		set_color(double short_d);
+
+void	draw_aim(t_data data, t_player player); // draw_not_used.c
+void	draw_hack(t_data *data, t_player *player, int ga, int color);
+
+void	draw_up_down(t_data *data, t_map map); // draw.c
+void	draw(t_data *data, t_player *player, int color);
+void	remove_pix(t_data *data, t_player *player);
+
+double	follow_x1(t_data *data, t_player player, double theta); // follow_quard.c
+double	follow_x2(t_data *data, t_player player, double theta);
+double	follow_x3(t_data *data, t_player player, double theta);
+double	follow_x4(t_data *data, t_player player, double theta);
+
+void	pixel_put_wall_1(t_data *data, double distance, double theta, int i); // pixel_put_wall.c
+void	pixel_put_wall_2(t_data *data, double distance, double theta, int i);
+void	remove_pixel_put_wall(t_data *data, int short_d, int i);
+
+int		go_stopping(t_map map, t_player player); // moving.c
+int		back_stopping(t_map map, t_player player);
+void	moving(t_data *data, t_player *player);
+
+int		check_quard(double theta); // find_wall.c
+void	remove_find_wall(t_data *data, t_player player, double theta, int i);
+void	find_wall(t_data *data, t_player player, double theta, int i);
+
+void	img_set(t_data *data); // setting.c
+void	dataset(t_data *data);
+
 #endif
