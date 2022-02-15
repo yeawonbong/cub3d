@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: minsikim <minsikim@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ybong <ybong@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/20 15:28:57 by ybong             #+#    #+#             */
-/*   Updated: 2022/02/15 15:35:38 by minsikim         ###   ########.fr       */
+/*   Updated: 2022/02/15 17:40:21 by ybong            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,7 @@ int	get_next_line(int fd, char **line)
 	int			readsize;
 	int			enter_idx;
 
+	readsize = 0;
 	if (BUFFER_SIZE <= 0 || fd < 0 || !(line) || fd > FOPEN_MAX)
 		return (-1);
 	readsize = ft_read(readsize, fd, backup);

@@ -1,7 +1,10 @@
+SHELL = bash
+GREEN = "\033[32m"
+YELLOW = "\033[33m"
+RESET = "\033[0m"
 
 CFLAGS = -Wall -Wextra -Werror
 OUT = cub3d
-LIB = cub3d.a
 SRC = testmain.c \
 		map.c \
 		map_util.c \
@@ -16,22 +19,43 @@ SRC = testmain.c \
 
 OBJ = $(SRC:.c=.o)
 
+LIBS = libft/libft.a \
+		get_next_line/libgnl.a
+
 # gcc -L./minilibx_opengl_20191021 -lmlx -framework OpenGL -framework Appkit -g3 -fsanitize=address $(CFLAGS) $(MAIN) $(FILE) -o $(OUT) -L. -lgnl -I.
 # gcc -L./minilibx_opengl_20191021 -lmlx -framework OpenGL -framework Appkit $(CFLAGS) $(MAIN) $(FILE) -o $(OUT) -L. -lgnl -L. -lft -I.
 
 all : $(OUT)
 
-$(OUT) : $(OBJ)
-	gcc -L./minilibx_opengl_20191021 -lmlx -framework OpenGL -framework Appkit $(CFLAGS) $(OBJ) -o $(OUT) -L./get_next_line -lgnl -L./libft -lft -I.
+$(OUT) : $(OBJ) $(LIBS)
+	@echo -en 'Assembling ['$(YELLOW)'$@'$(RESET)']... '
+	@gcc -L./minilibx_opengl_20191021 -lmlx -framework OpenGL -framework Appkit $(CFLAGS) $(OBJ) -o $(OUT) -L./get_next_line -lgnl -L./libft -lft -I.
+	@echo -e $(GREEN)✔$(RESET)
 
 $(OBJ) : $(SRC)
-	gcc $(CFLAGES) -c $(SRC)
+	@echo -n "Compiling... "
+	@gcc $(CFLAGES) -c $(SRC)
+	@echo -e $(GREEN)✔$(RESET)
+
+$(LIBS) : ./libft ./get_next_line
+	@echo -en 'Archiving ['$(YELLOW)'libft.a libgnl.a'$(RESET)']... '
+	@make -C libft
+	@make -C get_next_line
+	@echo -e $(GREEN)✔$(RESET)
 
 clean :
-	rm -rf $(OBJECTS)
+	@echo -n "Cleaning obj files... "
+	@rm -f $(OBJ)
+	@make clean -C libft
+	@make clean -C get_next_line
+	@echo -e $(GREEN)✔$(RESET)
 
 fclean : clean
-	rm -rf $(OUT) $(OBJ)
+	@echo -n "Cleaning all... "
+	@rm -f $(OUT)
+	@make fclean -C libft
+	@make fclean -C get_next_line
+	@echo -e $(GREEN)✔$(RESET)
 
 re : fclean all
 

@@ -6,7 +6,7 @@
 #    By: ybong <ybong@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/12/28 00:12:32 by ybong             #+#    #+#              #
-#    Updated: 2021/07/04 20:57:19 by ybong            ###   ########.fr        #
+#    Updated: 2022/02/15 17:33:02 by ybong            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -70,20 +70,20 @@ OBJ_BONUS = $(SRC_BONUS:.c=.o)
 all : $(NAME)
 
 $(NAME) : $(OBJ)
-	$(AR) $@ $(OBJ)
+	@$(AR) $@ $(OBJ)
 
 %.o:%.c
-	$(CC) $(CFLAGES) -c $< -o $@
+	@$(CC) $(CFLAGES) -c $< -o $@
 
 clean :
-	rm -f ./isto_functions/*.o
-	rm -f ./lst_functions/*.o
-	rm -f ./malloc_functions/*.o
-	rm -f ./mem_functions/*.o
-	rm -f ./put_fd_functions/*.o
-	rm -f ./str_functions/*.o
+	@rm -f ./isto_functions/*.o
+	@rm -f ./lst_functions/*.o
+	@rm -f ./malloc_functions/*.o
+	@rm -f ./mem_functions/*.o
+	@rm -f ./put_fd_functions/*.o
+	@rm -f ./str_functions/*.o
 
 fclean : clean
-	rm -f $(NAME)
+	@rm -f $(NAME)
 
 re : fclean all
