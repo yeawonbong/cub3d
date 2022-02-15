@@ -68,6 +68,8 @@ typedef struct s_mapinfo
 	char	*east;
 	char	*floor;
 	char	*ceiling;
+	int		f;
+	int		c;
 }			t_mapinfo;
 
 typedef struct	s_map
@@ -88,6 +90,8 @@ typedef struct	s_img {
 	int		bpp;
 	int		line;
 	int		endian;
+	int		x;
+	int		y;
 }				t_img;
 
 typedef struct	s_data {
@@ -116,7 +120,10 @@ typedef struct	s_data {
 
 	t_map		map;
 	t_player	player;
-	t_img		iiii;
+	t_img		east;
+	t_img		west;
+	t_img		south;
+	t_img		north;
 
 	int		m1;
 	int		m2;

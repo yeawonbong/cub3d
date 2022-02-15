@@ -21,15 +21,35 @@ void    vec_mlx_pixel_put(t_data *data, t_player *player, int i, int j, int colo
 	*(unsigned int*)dst = color;
 }
 
-int		set_color(int short_d)
+int		set_color_shadow(double short_d, int color)
 {
 	int		r;
 	int		g;
 	int		b;
+	int		t;
 
-	r = 0xFF - (short_d / 3);// 0xTTRRGGBB
-	g = 0xFF - (short_d / 3);
-	b = 0xFF - (short_d / 3);
+	r = (color & 0xFF0000 >> 16) - (short_d / 3);// 0xTTRRGGBB, 00000000 00000000 00000000 00000000
+	g = (color & 0xFF00 >> 8) - (short_d) / 3;
+	b = (color & 0xFF) - ((short_d) / 3);
+	if (r < 0)
+		r = 0x00;
+	if (g < 0)
+		g = 0x00;
+	if (b < 0)
+		b = 0x00;
+	return (r << 16 | g << 8 | b);
+}
+
+int		set_color(double short_d)
+{
+	int		r;
+	int		g;
+	int		b;
+	int		t;
+
+	r = 0xFF - (short_d / 3);// 0xTTRRGGBB, 00000000 00000000 00000000 00000000
+	g = 0xFF - (short_d) / 3;
+	b = 0xFF - ((short_d) / 3);
 	if (r < 0)
 		r = 0x00;
 	if (g < 0)
@@ -140,21 +160,21 @@ void	draw_hack(t_data *data, t_player *player, int ga, int color)
 	}
 }
 
+
+
 void	draw_up_down(t_data *data, t_map map)
 {
 	int		i;
 	int		j;
-	int		color;
-
+	
 	i = -1;
 	while (++i < map.width)
 	{
 		j = -1;
 		while(++j < map.height / 2)
 		{
-			color = set_color(j);
-			my_mlx_pixel_put(data, i, map.height / 2 + j, (0xFFFFFF - color));
-			my_mlx_pixel_put(data, i, map.height / 2 - j, 0xFFFFFF - color);
+			my_mlx_pixel_put(data, i, map.height / 2 + j, map.info.f);
+			my_mlx_pixel_put(data, i, map.height / 2 - j, map.info.c);
 		}
 	}
 }
@@ -247,8 +267,8 @@ double	follow_x1(t_data *data, t_player player, double theta) // 1
 			w_y += BITSIZE;
 	}
 
-	data->wall_x = w_x - BITSIZE;
-	data->wall_y = w_y - BITSIZE;
+	data->wall_x = w_x;
+	data->wall_y = w_y;
 	if (d_x < d_y)
 	{
 		data->short_x = 1;
@@ -283,8 +303,8 @@ double	follow_x2(t_data *data, t_player player, double theta)
 			w_y += BITSIZE;
 	}
 
-	data->wall_x = w_x + BITSIZE;
-	data->wall_y = w_y - BITSIZE;
+	data->wall_x = w_x;
+	data->wall_y = w_y;
 	// printf("d_x:%f d_y:%f, w_x:%d w_y:%d\n", d_x, d_y, w_x, w_y);
 	if (d_x < d_y)
 	{
@@ -320,8 +340,8 @@ double	follow_x3(t_data *data, t_player player, double theta)
 			w_y -= BITSIZE;
 	}
 
-	data->wall_x = w_x + BITSIZE;
-	data->wall_y = w_y + BITSIZE;
+	data->wall_x = w_x;
+	data->wall_y = w_y;
 	// printf("d_x:%f d_y:%f, w_x:%d w_y:%d\n", d_x, d_y, w_x, w_y);
 	if (d_x < d_y)
 	{
@@ -357,8 +377,8 @@ double	follow_x4(t_data *data, t_player player, double theta)
 			w_y -= BITSIZE;
 	}
 
-	data->wall_x = w_x - BITSIZE;
-	data->wall_y = w_y + BITSIZE;
+	data->wall_x = w_x;
+	data->wall_y = w_y;
 	if (d_x < d_y)
 	{
 		data->short_x = 1;
@@ -368,63 +388,110 @@ double	follow_x4(t_data *data, t_player player, double theta)
 		return (d_y);
 }
 
-void	pixel_put_wall_1(t_data *data, int short_d, int theta, int i)
+void	pixel_put_wall_1(t_data *data, double distance, double theta, int i)
 {
 	int		j;
 	int		img_y;
 	int		color_up;
 	int		color_down;
 	int		img_x;
-	// if (data->fish == 1)
-	// 	short_d = short_d * cos(((double)i / 400) * (M_PI / 6) - M_PI / 2);
-	// else
-	short_d = short_d * cos(((double)i / (data->map.width / 2)) * (M_PI / 6));
-	if (data->short_x == 1)
-	{
-		img_x = data->wall_y - sin(theta) * short_d;
-		printf("img_x:%d\n", img_x);
-	}
+	double	fish;
+	int		shadow;
 
-	if (short_d < 0)
-		short_d *= -1;
-	if (data->map.height * (BITSIZE / 2) > data->map.height * short_d / 2)
-		short_d = data->map.height * (BITSIZE / 2) / (data->map.height / 2);
-	// shadow = set_color(short_d);
+	fish = distance * cos(((double)i / (data->map.width / 2)) * (M_PI / 6));
+
+	img_x = data->wall_y - data->player.y - sin(theta) * distance;
+	if (fish < 0)
+		fish *= -1;
+	
 	j = -1;
-	while (++j < data->map.height * (BITSIZE / 2) / short_d)
+	while (++j < data->map.height * (BITSIZE / 2) / fish && j < data->map.height / 2)
 	{
-		img_y = (double)j * (BITSIZE / 2) / (data->map.height * (BITSIZE / 2) / short_d) - 2;
+		img_y = (double)j * (BITSIZE / 2) / (data->map.height * (BITSIZE / 2) / fish);
+		
 		// printf("img_y:%d", img_y);
-		// for (int k = 0; k < (data->map.height * (BITSIZE / 2) / short_d) / BITSIZE; k++)
-		color_down = data->iiii.img_data[img_x + BITSIZE * (BITSIZE / 2 + img_y)];
-		color_up = data->iiii.img_data[img_x + BITSIZE * (BITSIZE / 2 - img_y)];
+		// for (int k = 0; k < (data->map.height * (BITSIZE / 2) / fish) / BITSIZE; k++)
+		if (cos(theta) > 0)
+		{
+			color_down = data->west.img_data[img_x + BITSIZE * (BITSIZE / 2 + img_y)];
+			color_up = data->west.img_data[img_x + BITSIZE * (BITSIZE / 2 - img_y)];
+		}
+		else
+		{
+			color_down = data->east.img_data[img_x + BITSIZE * (BITSIZE / 2 + img_y)];
+			color_up = data->east.img_data[img_x + BITSIZE * (BITSIZE / 2 - img_y)];
+		}
+		// color_up = set_color(fish);
+		// color_down = set_color(fish);
 		// printf("%d, %d\n", (i + (data->map.width / 2)) * 64 / data->map.width, (j % 64));
-		// data->addr[i + data->iiii.w * (j)] = color;
+		// data->addr[i + data->west.w * (j)] = color;
 		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 + j, color_down);
 		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 - 1 - j, color_up);
 	}
 }
 
-void	pixel_put_wall_2(t_data *data, int short_d, int i)
+void	pixel_put_wall_2(t_data *data, double distance, double theta, int i)
 {
 	int		j;
-	int		color;
+	int		img_y;
+	int		color_up;
+	int		color_down;
+	int		img_x;
+	double	fish;
+	int		shadow;
 
-	short_d = short_d * cos(((double)i / (data->map.width / 2)) * (M_PI / 6));
-	if (short_d < 0)
-		short_d *= -1;
-	if (data->map.height * (BITSIZE / 2) > data->map.height * short_d / 2)
-		short_d = data->map.height * (BITSIZE / 2) / (data->map.height / 2);
-	color = set_color(short_d) - 0x00151515;
-	if (color < 0)
-		color = 0;
+	fish = distance * cos(((double)i / (data->map.width / 2)) * (M_PI / 6));
+
+	img_x = data->wall_x + 64 - data->player.x - cos(theta) * distance;
+	if (fish < 0)
+		fish *= -1;
+	
 	j = -1;
-	while (++j < data->map.height * (BITSIZE / 2) / short_d)
+	while (++j < data->map.height * (BITSIZE / 2) / fish && j < data->map.height / 2)
 	{
-		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 + j, color);
-		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 - j, color);
+		img_y = (double)j * (BITSIZE / 2) / (data->map.height * (BITSIZE / 2) / fish);
+		
+		// for (int k = 0; k < (data->map.height * (BITSIZE / 2) / fish) / BITSIZE; k++)
+		if (sin(theta) > 0)
+		{
+			color_down = data->north.img_data[img_x + BITSIZE * (BITSIZE / 2 + img_y)];
+			color_up = data->north.img_data[img_x + BITSIZE * (BITSIZE / 2 - img_y)];
+		}
+		else
+		{
+		// printf("img_x:%d, img_y:%d\ntest: %d, %d\n", img_x, img_y,(img_x + BITSIZE * (BITSIZE / 2 + img_y)), data->south.img_data[img_x + BITSIZE * (BITSIZE / 2 + img_y)]);
+			color_down = data->south.img_data[img_x + BITSIZE * (BITSIZE / 2 + img_y)];
+			color_up = data->south.img_data[img_x + BITSIZE * (BITSIZE / 2 - img_y)];
+		}
+		// color_up = set_color(fish);
+		// color_down = set_color(fish);
+		// printf("%d, %d\n", (i + (data->map.width / 2)) * 64 / data->map.width, (j % 64));
+		// data->addr[i + data->west.w * (j)] = color;
+		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 + j, color_down);
+		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 - 1 - j, color_up);
 	}
 }
+
+// void	pixel_put_wall_2(t_data *data, int short_d, double theta, int i)
+// {
+// 	int		j;
+// 	int		color;
+
+// 	short_d = short_d * cos(((double)i / (data->map.width / 2)) * (M_PI / 6));
+// 	if (short_d < 0)
+// 		short_d *= -1;
+// 	if (data->map.height * (BITSIZE / 2) > data->map.height * short_d / 2)
+// 		short_d = data->map.height * (BITSIZE / 2) / (data->map.height / 2);
+// 	color = set_color(short_d) - 0x00151515;
+// 	if (color < 0)
+// 		color = 0;
+// 	j = -1;
+// 	while (++j < data->map.height * (BITSIZE / 2) / short_d)
+// 	{
+// 		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 + j, color);
+// 		my_mlx_pixel_put(data, i + data->map.width / 2, data->map.height / 2 - j, color);
+// 	}
+// }
 
 void	remove_pixel_put_wall(t_data *data, int short_d, int i)
 {
@@ -484,11 +551,10 @@ void	find_wall(t_data *data, t_player player, double theta, int i)
 	if (quard == 1) // 근데 여기선 4사분면 (보이는것만 4사분면이고 계산은 1사분면으로!)
 	{
 		short_d = follow_x1(data, player, theta);
-		data->wall_y -= (int)player.y;
 		if (data->short_x == 1)
 			pixel_put_wall_1(data, short_d, theta, i);
 		else
-			pixel_put_wall_2(data, short_d, i);
+			pixel_put_wall_2(data, short_d, theta, i);
 	}
 	if (quard == 2) // 근데 여기선 3사분면
 	{
@@ -497,7 +563,7 @@ void	find_wall(t_data *data, t_player player, double theta, int i)
 		if (data->short_x == 1)
 			pixel_put_wall_1(data, short_d, theta, i);
 		else
-			pixel_put_wall_2(data, short_d, i);
+			pixel_put_wall_2(data, short_d, theta, i);
 	}
 	if (quard == 3)
 	{
@@ -505,7 +571,7 @@ void	find_wall(t_data *data, t_player player, double theta, int i)
 		if (data->short_x == 1)
 			pixel_put_wall_1(data, short_d, theta, i);
 		else
-			pixel_put_wall_2(data, short_d, i);
+			pixel_put_wall_2(data, short_d, theta, i);
 	}
 	if (quard == 4)
 	{
@@ -513,7 +579,7 @@ void	find_wall(t_data *data, t_player player, double theta, int i)
 		if (data->short_x == 1)
 			pixel_put_wall_1(data, short_d, theta, i);
 		else
-			pixel_put_wall_2(data, short_d, i);
+			pixel_put_wall_2(data, short_d, theta, i);
 	}
 }
 
@@ -626,23 +692,32 @@ void	moving(t_data *data, t_player *player)
 	}
 }
 
-void	draw_practice(t_data *data, t_img *iiii)
+void	img_set(t_data *data)
 {
-	iiii->img_ptr = mlx_xpm_file_to_image(data->mlx, "./textures/coffee64.XPM", &data->w, &data->h);
-	iiii->img_data = (int *)mlx_get_data_addr(iiii->img_ptr, &iiii->bpp, &iiii->line, &iiii->endian);
+	t_mapinfo info;
+
+	info = data->map.info;
+	data->west.img_ptr = mlx_xpm_file_to_image(data->mlx, info.west, &data->west.w, &data->west.h);
+	data->west.img_data = (int *)mlx_get_data_addr(data->west.img_ptr, &data->west.bpp, &data->west.line, &data->west.endian);
+	data->south.img_ptr = mlx_xpm_file_to_image(data->mlx, info.south, &data->south.w, &data->south.h);
+	data->south.img_data = (int *)mlx_get_data_addr(data->south.img_ptr, &data->south.bpp, &data->south.line, &data->south.endian);
+	data->east.img_ptr = mlx_xpm_file_to_image(data->mlx, info.east, &data->south.w, &data->south.h);
+	data->east.img_data = (int *)mlx_get_data_addr(data->east.img_ptr, &data->east.bpp, &data->east.line, &data->east.endian);
+	data->north.img_ptr = mlx_xpm_file_to_image(data->mlx, info.north, &data->north.w, &data->north.h);
+	data->north.img_data = (int *)mlx_get_data_addr(data->north.img_ptr, &data->north.bpp, &data->north.line, &data->north.endian);
 	int color;
-	// for (int i = 0; i < 10; i++)//iiii->img_data[i]; i++)
-	// printf("img_data:%x\n", iiii->img_data[15 + 4 * 64]);
+	// for (int i = 0; i < 10; i++)//west->img_data[i]; i++)
+	// printf("img_data:%x\n", west->img_data[15 + 4 * 64]);
 	for (int i = 0; i < BITSIZE; i++)
 	{
 		for (int j = 0; j < BITSIZE; j++)
 		{
-			color = iiii->img_data[i + BITSIZE * j];
+			color = data->south.img_data[i + BITSIZE * j];
 			my_mlx_pixel_put(data, i, j, color);
 		}
 	}
 	
-	// my_mlx_pixel_put(iiii->img)
+	// my_mlx_pixel_put(west->img)
 	// data.imgadd = mlx_xpm_to_image(data.mlx, data.xpmdata, &data.w, &data.h);
 }
 
@@ -652,16 +727,16 @@ int		loop_ft(t_data *data)
 	moving(data, &data->player); // (remove)
 	draw(data, &data->player, data->player.pcolor); // outside
 
-	if (data->frame % 50 == 1)
-		printf("x:%f, y:%f\n", data->player.x, data->player.y);
-
+	// if (data->frame % 50 == 1)
+	// 	printf("x:%f, y:%f\n", data->player.x, data->player.y);
+	img_set(data); // 
 	for(int i = -1 * data->map.width / 2; i < data->map.width / 2; i++)
 	{
 		find_wall(data, data->player, data->player.theta + ((double)i / (data->map.width / 2)) * (M_PI / 6), i);
 	}
-	draw_practice(data, &data->iiii); // 
+	
 	mlx_put_image_to_window(data->mlx, data->win, data->img, 0, 0);
-	// mlx_put_image_to_window(data->mlx, data->win, data->iiii.img_ptr, 0, 0); // 
+	// mlx_put_image_to_window(data->mlx, data->win, data->west.img_ptr, 0, 0); // 
 	return (0);
 }
 
@@ -671,6 +746,7 @@ void	dataset(t_data *data)
 	data->player.right = 0;
 	data->player.up = 0;
 	data->player.down = 0;
+	data->player.dir = 0;
 
 	data->player.color = 0x00FFFF60;
 	data->player.pcolor = 0x00FFFF60;

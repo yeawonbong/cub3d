@@ -6,7 +6,7 @@
 /*   By: minsikim <minsikim@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/10 14:15:00 by ybong             #+#    #+#             */
-/*   Updated: 2022/02/14 11:55:18 by minsikim         ###   ########.fr       */
+/*   Updated: 2022/02/14 18:51:28 by minsikim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,22 @@ int	get_map_info_process(t_data *data, int fd, char *line, int i)
 	return (i);
 }
 
+int		set_fc(char *fc)
+{
+	int		r;
+	int		g;
+	int		b;
+	char	**arr;
+	int		color;
+
+	arr = ft_split(fc, ',');
+	r = ft_atoi(arr[0]);
+	g = ft_atoi(arr[1]);
+	b = ft_atoi(arr[2]);
+	color = (r << 16 | g << 8 | b);
+	return (color);
+}
+
 void	get_map_info(t_data *data, int fd)
 {
 	char	*line;
@@ -66,6 +82,8 @@ void	get_map_info(t_data *data, int fd)
 			break ;
 	}
 	data->map.height = i;
+	data->map.info.f = set_fc(data->map.info.floor);
+	data->map.info.c = set_fc(data->map.info.ceiling);
 }
 
 int	isvalid_map_process(t_map *map, char **maparr, int i, int j)
@@ -137,7 +155,7 @@ int	isvalid_map(t_map *map, t_player *player)
 				player->dir = maparr[i][j];
 				set_direction(player);
 			}
-			else if (!ft_strchr("01 ", maparr[i][j]))
+			else if (ft_strchr("01 ", maparr[i][j]) == NULL)
 				return (-1);
 			if (isvalid_map_process(map, maparr, i, j) < 0)
 				return (-1);
