@@ -37,12 +37,8 @@ typedef struct s_player
 	int		down;
 	int		left;
 	int		right;
-	int		num;
-	int		count;
-	int		color;
-	int		pcolor;
-	char	*charic;
-	int		hack;
+	int		rotate_left;
+	int		rotate_right;
 
 	int		frame;
 
@@ -104,18 +100,13 @@ typedef struct s_data {
 	int			line_length;
 	int			endian;
 	long long	frame;
-	int			item;
-	int			now;
-	int			clear;
 	int			wall_x;
 	int			wall_y;
 	int			short_x;
-	int			space;
 	int			quard;
 	int			img_x;
 	int			img_y;
 	double		fish;
-	int			pix_fix;
 
 	int			w;
 	int			h;
@@ -131,55 +122,92 @@ typedef struct s_data {
 	float		rotate_speed;
 }				t_data;
 
-void	get_map_info(t_data *data, int fd); // map.c
+/*
+**map.c
+*/
+void	get_map_info(t_data *data, int fd);
 int		isvalid_map(t_map *map, t_player *player);
 void	get_map(t_data *data, char *filename);
 int		get_map_info_process(t_data *data, int fd, char *line, int i);
 int		isvalid_map_process(t_map *map, char **maparr, int i, int j);
 
-void	get_map_size(t_data *data, char *line, int fd); // map_util.c
+/*
+**map_util.c
+*/
+void	get_map_size(t_data *data, char *line, int fd);
 void	set_direction(t_player *player);
 int		set_fc(char *fc);
 void	map_error(char *msg);
 
-void	my_mlx_pixel_put(t_data *data, int x, int y, int color); //pixel_put.c
+/*
+**pixel_put.c
+*/
+void	my_mlx_pixel_put(t_data *data, int x, int y, int color);
 int		set_color_shadow(double short_d, int color);
 int		set_color(double short_d);
 
-void	draw_aim(t_data data, t_player player); ///////////// draw_not_used.c
+/*
+**draw_not_used.c
+*/
+void	draw_aim(t_data data, t_player player);
 void	draw_hack(t_data *data, t_player *player, int ga, int color);
 void	remove_pix(t_data *data, t_player *player);
 
-void	draw_up_down(t_data *data, t_map map); // draw.c
+/*
+**draw.c
+*/
+void	draw_up_down(t_data *data, t_map map);
 void	draw(t_data *data, t_player *player, int color);
 
-// follow_quard.c
+/*
+** follow_quard.c
+*/
 double	follow_x1(t_data *data, t_player player, double theta);
 double	follow_x2(t_data *data, t_player player, double theta);
 double	follow_x3(t_data *data, t_player player, double theta);
 double	follow_x4(t_data *data, t_player player, double theta);
 
-// follow_while.c
+/*
+**follow_while.c
+*/
 void	while_x1(t_data *data, t_player player, double theta);
 void	while_x2(t_data *data, t_player player, double theta);
 void	while_x3(t_data *data, t_player player, double theta);
 void	while_x4(t_data *data, t_player player, double theta);
 
-// pixel_put_wall.c
+/*
+** pixel_put_wall.c
+*/
 void	pixel_put_wall_x(t_data *data, double distance, double theta, int i);
 void	pixel_put_wall_y(t_data *data, double distance, double theta, int i);
 void	remove_pixel_put_wall(t_data *data, int short_d, int i);
 
-int		go_stopping(t_map map, t_player player); // moving.c
+/*
+**stopping.c
+*/
+int		go_stopping(t_map map, t_player player);
 int		back_stopping(t_map map, t_player player);
-void	moving(t_data *data, t_player *player);
+int		left_stopping(t_map map, t_player player);
+int		right_stopping(t_map map, t_player player);
 
-int		check_quard(double theta); // find_wall.c
+/*
+**moving.c
+*/
+void	moving(t_data *data, t_player *player);
+void	moving_helper(t_data *data, t_player *player);
+
+/*
+**find_wall.c
+*/
+int		check_quard(double theta);
 void	remove_find_wall(t_data *data, t_player player, double theta, int i);
 void	find_wall(t_data *data, t_player player, double theta, int i);
 void	find_wall_34(t_data *data, t_player player, double theta, int i);
 
-void	img_set(t_data *data); // setting.c
+/*
+**setting.c
+*/
+void	img_set(t_data *data);
 void	dataset(t_data *data);
 
 #endif

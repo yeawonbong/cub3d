@@ -29,9 +29,11 @@ void	dataset(t_data *data)
 	data->player.right = 0;
 	data->player.up = 0;
 	data->player.down = 0;
+	data->player.rotate_left = 0;
+	data->player.rotate_right = 0;
 	data->player.dir = 0;
 	data->frame = 0;
-	data->now = 0;
 	data->player.move_speed = 3;
 	data->rotate_speed = 0.026;
+	ft_memset((t_map *)&data->map, 0, sizeof(t_map));
 }

@@ -17,42 +17,43 @@ int	free_exit(t_data *data)
 		i++;
 	}
 	free(data->map.maparr);
-	system("leaks cub3d");
 	exit(0);
 }
 
 int	tracing(int keycode, t_data *data)
 {
-	if (keycode == 49)
-		data->space = 1;
-	if (keycode == 126)
+	if (keycode == W)
 		data->player.up = 1;
-	if (keycode == 125)
+	if (keycode == S)
 		data->player.down = 1;
-	if (keycode == 123)
+	if (keycode == LEFT)
+		data->player.rotate_left = 1;
+	if (keycode == RIGHT)
+		data->player.rotate_right = 1;
+	if (keycode == A)
 		data->player.left = 1;
-	if (keycode == 124)
+	if (keycode == D)
 		data->player.right = 1;
-	if (keycode == 53)
-	{
+	if (keycode == ESC)
 		free_exit(data);
-	}
 	return (0);
 }
 
 int	release(int keycode, t_data *data)
 {
-	if (keycode == 49)
-		data->space = 0;
-	if (keycode == 126)
+	if (keycode == W)
 		data->player.up = 0;
-	if (keycode == 125)
+	if (keycode == S)
 		data->player.down = 0;
-	if (keycode == 123)
+	if (keycode == LEFT)
+		data->player.rotate_left = 0;
+	if (keycode == RIGHT)
+		data->player.rotate_right = 0;
+	if (keycode == A)
 		data->player.left = 0;
-	if (keycode == 124)
+	if (keycode == D)
 		data->player.right = 0;
-	if (keycode == 53)
+	if (keycode == ESC)
 	{
 		free_exit(data);
 	}
@@ -97,8 +98,8 @@ int	main(int agc, char *argv[])
 	data.addr = (int *)mlx_get_data_addr(data.img, \
 		&data.bits_per_pixel, &data.line_length, &data.endian);
 	img_set(&data);
-	mlx_hook(data.win, 2, 1L << 1, tracing, &data);
-	mlx_hook(data.win, 17, 1L << 1, free_exit, &data);
+	mlx_hook(data.win, KEYPRESS, 1L << 1, tracing, &data);
+	mlx_hook(data.win, REDCROSS, 1L << 1, free_exit, &data);
 	mlx_do_key_autorepeaton(data.mlx);
 	mlx_hook(data.win, 3, 1L << 1, release, &data);
 	mlx_loop_hook(data.mlx, loop_ft, &data);

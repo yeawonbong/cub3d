@@ -31,8 +31,8 @@ double	follow_x2(t_data *data, t_player player, double theta)
 	{
 		while_x2(data, player, theta);
 	}
-	data->wall_x = data->follow.w_x;
-	data->wall_y = data->follow.w_y;
+	data->wall_x = data->follow.w_x + BITSIZE;
+	data->wall_y = data->follow.w_y - BITSIZE;
 	if (data->follow.d_x < data->follow.d_y)
 	{
 		data->short_x = 1;
@@ -73,8 +73,8 @@ double	follow_x4(t_data *data, t_player player, double theta)
 	{
 		while_x4(data, player, theta);
 	}
-	data->wall_x = data->follow.w_x;
-	data->wall_y = data->follow.w_y;
+	data->wall_x = data->follow.w_x - BITSIZE;
+	data->wall_y = data->follow.w_y + BITSIZE;
 	if (data->follow.d_x < data->follow.d_y)
 	{
 		data->short_x = 1;

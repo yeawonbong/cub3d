@@ -64,7 +64,6 @@ void	find_wall_34(t_data *data, t_player player, double theta, int i)
 			pixel_put_wall_x(data, follow_x4(data, player, theta), theta, i);
 		else
 		{
-			data->pix_fix = 1;
 			pixel_put_wall_y(data, follow_x4(data, player, theta), theta, i);
 		}
 	}
@@ -75,7 +74,6 @@ void	find_wall(t_data *data, t_player player, double theta, int i)
 	int		w_x;
 	int		w_y;
 
-	data->pix_fix = 0;
 	data->quard = check_quard(theta);
 	if (data->quard == 1)
 	{
@@ -84,12 +82,13 @@ void	find_wall(t_data *data, t_player player, double theta, int i)
 		else
 			pixel_put_wall_y(data, follow_x1(data, player, theta), theta, i);
 	}
-	if (data->quard == 2)
+	else if (data->quard == 2)
 	{
 		if (data->short_x == 1)
 			pixel_put_wall_x(data, follow_x2(data, player, theta), theta, i);
 		else
 			pixel_put_wall_y(data, follow_x2(data, player, theta), theta, i);
 	}
-	find_wall_34(data, player, theta, i);
+	else
+		find_wall_34(data, player, theta, i);
 }

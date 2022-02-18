@@ -5,10 +5,11 @@ RESET = "\033[0m"
 
 CFLAGS = -Wall -Wextra -Werror
 OUT = cub3d
-SRC = testmain.c \
+SRC = cub3d.c \
 		map.c \
 		map_util.c \
 		moving.c \
+		stopping.c \
 		pixel_put.c \
 		pixel_put_wall.c \
 		find_wall.c \

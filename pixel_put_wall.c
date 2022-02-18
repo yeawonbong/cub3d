@@ -1,6 +1,6 @@
 #include "cub3d.h"
 
-void	wall_1_helper(t_data *data, int i, int j, double theta)
+void	wall_x_helper(t_data *data, int i, int j, double theta)
 {
 	int		color_up;
 	int		color_down;
@@ -27,28 +27,26 @@ void	wall_1_helper(t_data *data, int i, int j, double theta)
 							data->map.height / 2 - 1 - j, color_up);
 }
 
-void	wall_2_helper(t_data *data, int i, int j, double theta)
+void	wall_y_helper(t_data *data, int i, int j, double theta)
 {
 	int		color_down;
 	int		color_up;
 
-	data->img_y = (double)j * (BITSIZE / 2) / \
-					(data->map.height * (BITSIZE / 2) / data->fish);
+	data->img_y = (j * (BITSIZE / 2) / \
+					(data->map.height * (BITSIZE / 2) / data->fish));
 	if (sin(theta) > 0)
 	{
 		color_down = data->north.img_data[data->img_x \
 			+ BITSIZE * (BITSIZE / 2 + data->img_y)];
-		if (data->pix_fix == 1)
-			data->img_y += 10;
 		color_up = data->north.img_data[data->img_x \
 			+ BITSIZE * (BITSIZE / 2 - data->img_y)];
 	}
 	else
 	{
 		color_down = data->south.img_data[data->img_x \
-			+ BITSIZE * (BITSIZE / 2 + data->img_y)];
+			+ (BITSIZE * (BITSIZE / 2 + data->img_y))];
 		color_up = data->south.img_data[data->img_x \
-			+ BITSIZE * (BITSIZE / 2 - data->img_y)];
+			+ (BITSIZE * (BITSIZE / 2 - data->img_y))];
 	}
 	my_mlx_pixel_put(data, i + data->map.width / 2, \
 							data->map.height / 2 + j, color_down);
@@ -60,8 +58,8 @@ void	pixel_put_wall_x(t_data *data, double distance, double theta, int i)
 {
 	int		j;
 
-	data->fish = distance * cos(((double)i / \
-					(data->map.width / 2)) * (M_PI / 6));
+	data->fish = distance * cos(((double)i \
+		/ (data->map.width / 2)) * (M_PI / 6));
 	if (data->fish < 0)
 		data->fish *= -1;
 	data->img_x = data->wall_y - data->player.y - sin(theta) * distance;
@@ -69,7 +67,7 @@ void	pixel_put_wall_x(t_data *data, double distance, double theta, int i)
 	while (++j < data->map.height * (BITSIZE / 2) / data->fish \
 			&& j < data->map.height / 2)
 	{
-		wall_1_helper(data, i, j, theta);
+		wall_x_helper(data, i, j, theta);
 	}
 }
 
@@ -81,12 +79,12 @@ void	pixel_put_wall_y(t_data *data, double distance, double theta, int i)
 		/ (data->map.width / 2)) * (M_PI / 6));
 	if (data->fish < 0)
 		data->fish *= -1;
-	data->img_x = data->wall_x + 64 - data->player.x - cos(theta) * distance;
+	data->img_x = data->wall_x - data->player.x - cos(theta) * distance;
 	j = -1;
 	while (++j < data->map.height * (BITSIZE / 2) / data->fish \
 			&& j < data->map.height / 2)
 	{
-		wall_2_helper(data, i, j, theta);
+		wall_y_helper(data, i, j, theta);
 	}
 }
 
