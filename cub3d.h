@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   cub3d.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: minsikim <minsikim@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/02/21 12:18:43 by minsikim          #+#    #+#             */
+/*   Updated: 2022/02/21 12:18:44 by minsikim         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef CUB3D_H
 # define CUB3D_H
 
@@ -66,6 +78,12 @@ typedef struct s_mapinfo
 	char	*ceiling;
 	int		f;
 	int		c;
+	int		fbool;
+	int		cbool;
+	int		no;
+	int		so;
+	int		we;
+	int		ea;
 }			t_mapinfo;
 
 typedef struct s_map
@@ -138,6 +156,14 @@ void	get_map_size(t_data *data, char *line, int fd);
 void	set_direction(t_player *player);
 int		set_fc(char *fc);
 void	map_error(char *msg);
+
+/*
+**map_get_dir.c
+*/
+void	get_NO(t_data *data, char *line);
+void	get_SO(t_data *data, char *line);
+void	get_WE(t_data *data, char *line);
+void	get_EA(t_data *data, char *line);
 
 /*
 **pixel_put.c
